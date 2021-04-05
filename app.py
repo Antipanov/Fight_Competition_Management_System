@@ -245,18 +245,21 @@ def fight_constructor(comp_id):
     age_categories = AgecategoriesDB.query.order_by(asc(AgecategoriesDB.sort_index)).all()
     rounds = RoundsDB.query.order_by(asc(RoundsDB.sort_index)).all()
     if request.method == 'POST':
+        comp_id = competition_data.competition_id
         weight_cat = request.form.get('weight_cats_radio')
         age_cat = request.form.get('age_cat_radio')
         round_no = request.form.get('round_radio')
-        return render_template('fightconstructorstep2.html', competition_data=competition_data, weight_cat = weight_cat, age_cat = age_cat, round_no = round_no)
+        return redirect(url_for('fight_constructor_step2', comp_id = comp_id, weight_cat_id = weight_cat, age_cat_id = age_cat, round_no = round_no))
     return render_template('fightconstructor.html', competition_data=competition_data, weight_categories = weight_categories, rounds = rounds, age_categories = age_categories)
 
 # Конструктор поединков Шаг 2. Создание боев
-@app.route('/competitions/<int:comp_id>/constructor/step2', methods= ['GET', 'POST'])
-def fight_constructor_step2(comp_id):
+@app.route('/competitions/<int:comp_id>/constructor/step2/weightcat/<int:weight_cat_id>/agecat/<int:age_cat_id>/roundno/<int:round_no>')
+def fight_constructor_step2(comp_id, weight_cat_id, age_cat_id, round_no):
     competition_data = CompetitionsDB.query.get(comp_id)
-
-    return render_template('fightconstructorstep2.html', competition_data  = competition_data )
+    weight_category_data = WeightcategoriesDB.query.get(weight_cat_id)
+    age_category_data = AgecategoriesDB.query.get(age_cat_id)
+    round_data = RoundsDB.query.get(round_no)
+    return render_template('fightconstructorstep2.html', competition_data  = competition_data, weight_category_data = weight_category_data, age_category_data = age_category_data, round_data = round_data)
 
 
 

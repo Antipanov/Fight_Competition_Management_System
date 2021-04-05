@@ -32,7 +32,7 @@
                 {#<form method="POST" action="{{ url_for('fight_constructor', comp_id = competition_data.competition_id) }}">#}
                     {% for w_cat in weight_categories %}
                     <div class="form-check">
-                      <input class="form-check-input" type="radio" value={{ w_cat.weight_cat_id }} name="weight_cats_radio" id="flexRadioDefault1">
+                      <input class="form-check-input" type="radio" value={{ w_cat.weight_cat_id }} name="weight_cats_radio" id="Radioweightcat">
                       <label class="form-check-label" for="flexRadioDefault1">
                           {{ w_cat.weight_category_name}}
                       </label>
@@ -84,6 +84,10 @@
 
 
 <script>
+    $(document).ready(function() {
+            document.getElementById("Radioweightcat").value = '1';
+    } );
+
 
 </script>
 

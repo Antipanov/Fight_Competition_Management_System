@@ -23,6 +23,9 @@
                       </ol>
                 </nav>
                 <h3>{{ competition_data.competition_name }}</h3>
+                <h5>Весовая категория: {{ weight_category_data.weight_category_name }} </h5>
+                <h5>Возрастная категория: {{ age_category_data.age_category_name }} </h5>
+                <h5>Раунд: {{ round_data.round_name }} </h5>
             </div>
         </div>
         <div class="row">
@@ -34,9 +37,9 @@
             </div>
         </div>
     </div>
-    weight_cat = {{ weight_cat }}<br>
+    {#weight_cat = {{ weight_cat }}<br>
     age_cat = {{ age_cat }}<br>
-    round_no = {{ round_no }}
+    round_no = {{ round_no }}#}
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script>
