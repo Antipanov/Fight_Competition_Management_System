@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Конструктор поединков
+{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.2/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.24/css/dataTables.bootstrap4.min.css">
+{% endblock %}
+
+
+
+{% block content %}
+    <div class="container" style="margin-top: 10px">
+        <div class="row">
+            <div class="col-lg-12">
+                <nav aria-label="breadcrumb">
+                      <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{{url_for('competitions')}}">Список соревнований</a></li>
+                        <li class="breadcrumb-item"><a href="{{url_for('competition_view', competition_id = competition_data.competition_id)}}">{{ competition_data.competition_name }}</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Конструктор боев</li>
+                      </ol>
+                </nav>
+                <h3>{{ competition_data.competition_name }}</h3>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-6 shadow p-3 mb-5 bg-white rounded">
+                <h5>Участники</h5>
+            </div>
+            <div class="col-lg-6 shadow p-3 mb-5 bg-white rounded">
+                <h5>Поединки</h5>
+            </div>
+        </div>
+    </div>
+    weight_cat = {{ weight_cat }}<br>
+    age_cat = {{ age_cat }}<br>
+    round_no = {{ round_no }}
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+$(document).ready(function(){
+
+
+})
+</script>
+
+
+{% endblock %}
