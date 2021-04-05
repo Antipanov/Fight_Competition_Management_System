@@ -30,7 +30,7 @@
         </ul>
         {% endif %}
     {% endwith %}
-    <form method="POST" action="{{ url_for('weight_category_edit', id = weight_category_data.id) }}">
+    <form method="POST" action="{{ url_for('weight_category_edit', id = weight_category_data.weight_cat_id) }}">
         {{ form.csrf_token }}
             <div class="form-group">
                 {{ form.weight_category_name_form_field.label }}
