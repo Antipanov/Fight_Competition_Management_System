@@ -6,64 +6,33 @@
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
         <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.2/css/bootstrap.css">
 
-    <!-- Latest compiled and minified CSS -->
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.min.css">
+    <title>test</title>
 
-    <title>Регистрация</title>
 </head>
 <body>
-<!-- Это начало Nav Bar-->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        {#<a class="navbar-brand" href="#">Fights Management System</a>#}
 
+{% for i in range(0, test_value)%}
+<p>тест</p>
+{% endfor %}
 
-  <div class="collapse navbar-collapse" id="navbarSupportedContent">
-    <ul class="navbar-nav mr-auto">
-      <li class="nav-item">
-        <a class="nav-link" href="{{url_for('index')}}">Главная</a>
-      </li>
+<p></p>
 
-      <li class="nav-item">
-        <a class="nav-link" href="{{url_for('competitions')}}">Соревнования</a>
-      </li>
-
-      <li class="nav-item">
-        <a class="nav-link" href="{{url_for('settings_form')}}">Настройки</a>
-      </li>
-
-    </ul>
+<div id="targetDIV" style="border: 1px solid Red">
+    {#This text is surrounded by a DIV tag whose id is "targetDIV".#}
 </div>
-</nav>
-<!-- Это конец Nav Bar-->
 
+<button id="btn1">Append text</button>
+<button id="btn2">Append list items</button>
 
+<p>тест area</p>
+<div id="wrapper">
 
-<div class="container" style="margin-top: 10px">
-  <div class="row">
-      <div class="col-lg-12 shadow p-3 mb-5 bg-white rounded">
-             <nav aria-label="breadcrumb">
-              <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{{url_for('registration', competition_id = competition_data.competition_id)}}">Регистрация. Список</a></li>
-                <li class="breadcrumb-item active" aria-current="page">{{ competition_data.competition_name }}</li>
-              </ol>
-            </nav>
-            <div class="row justify-content-center">
-                <h3>{{ competition_data.competition_name }} Регистрация</h3>
-            </div>
-
-        <select class="selectpicker w-100" data-live-search="true">
-          <option data-tokens="ketchup mustard">Hot Dog, Fries and a Soda</option>
-          <option data-tokens="mustard">Burger, Shake and a Smile</option>
-          <option data-tokens="frosting">Sugar, Spice and all things nice</option>
-        </select>
-
-
-
-      </div>
-  </div>
 </div>
+
+</body>
+
 
 <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
@@ -71,15 +40,38 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
-    <!-- Latest compiled and minified JavaScript -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
-
-        <!-- (Optional) Latest compiled and minified JavaScript translation files -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/i18n/defaults-*.min.js" defer></script>
 
 <script>
     $(document).ready(function() {
-        $('select').selectpicker();
+        for (step = 0; step < 5; step++) {
+              // Запускается 5 раз, с шагом от 0 до 4.
+              $( "#wrapper" ).append( "<p>{{ test_value }} </p>" );
+              console.log(step)
+            document.getElementById('wrapper').innerHTML = step
+
+
+            }
+
+
+        let total_number_of_fighters = 4
+        let total_number_of_fights = Math.floor(total_number_of_fighters / 2)
+
+
+
+        $("#btn1").click(function(){
+            var step;
+            for (step = 0; step < 5; step++) {
+              // Запускается 5 раз, с шагом от 0 до 4.
+              $("<div>hello stackoverflow users</div>").appendTo("#targetDIV"); //appendTo: Append at inside bottom
+            }
+
+
+
+    });
+    $("#btn2").click(function(){
+        $("ol").prepend("<li>Prepended item {{ test_value }}</li>");
+      });
+
 } );
 </script>
 

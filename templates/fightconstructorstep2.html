@@ -19,21 +19,38 @@
                       <ol class="breadcrumb">
                         <li class="breadcrumb-item"><a href="{{url_for('competitions')}}">Список соревнований</a></li>
                         <li class="breadcrumb-item"><a href="{{url_for('competition_view', competition_id = competition_data.competition_id)}}">{{ competition_data.competition_name }}</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">Конструктор боев</li>
+                        <li class="breadcrumb-item"><a href="{{url_for('fight_constructor', comp_id = competition_data.competition_id)}}">Конструктор боев. Шаг 1</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Конструктор боев. Шаг 2</li>
                       </ol>
                 </nav>
                 <h3>{{ competition_data.competition_name }}</h3>
-                <h5>Весовая категория: {{ weight_category_data.weight_category_name }} </h5>
-                <h5>Возрастная категория: {{ age_category_data.age_category_name }} </h5>
-                <h5>Раунд: {{ round_data.round_name }} </h5>
+                <h6>Весовая категория: {{ weight_category_data.weight_category_name }} </h6>
+                <h6>Возрастная категория: {{ age_category_data.age_category_name }} </h6>
+                <h6>Раунд: {{ round_data.round_name }} </h6>
             </div>
         </div>
         <div class="row">
             <div class="col-lg-6 shadow p-3 mb-5 bg-white rounded">
                 <h5>Участники</h5>
+                {% for reg in reg_list_for_constructor %}
+                    <div class="form-check">
+                      <input id="checkregistration" name = "fighters_from_regs" class="form-check-input" type="checkbox" value={{ reg_list_for_constructor.id }}>
+                      <label class="form-check-label" for="checkregistration">
+                          {{ reg.fighter.name }} {{ reg.fighter.last_name }}
+                      </label>
+                    </div>
+                {% endfor %}
+            <hr/>
+            <button type="submit" class="btn btn-primary">Создать бой</button>
             </div>
             <div class="col-lg-6 shadow p-3 mb-5 bg-white rounded">
                 <h5>Поединки</h5>
+                {% for i in range(0, 3)%}
+                    <h6>Бой № {{i}}</h6>
+                    {% for i in range(0, 2)%}
+                        <p>Боец № {{i + 1}}</p>
+                    {% endfor %}
+                {% endfor %}
             </div>
         </div>
     </div>
@@ -44,8 +61,13 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script>
 $(document).ready(function(){
+    $('input:checkbox').on('click', function(){
+        var numberOfChecked = $('input:checkbox:checked').length;
+        var totalCheckboxes = $('input:checkbox').length;
+        var numberNotChecked = totalCheckboxes - numberOfChecked;
+        console.log(numberOfChecked)
 
-
+    })
 })
 </script>
 

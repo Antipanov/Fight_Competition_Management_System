@@ -259,7 +259,9 @@ def fight_constructor_step2(comp_id, weight_cat_id, age_cat_id, round_no):
     weight_category_data = WeightcategoriesDB.query.get(weight_cat_id)
     age_category_data = AgecategoriesDB.query.get(age_cat_id)
     round_data = RoundsDB.query.get(round_no)
-    return render_template('fightconstructorstep2.html', competition_data  = competition_data, weight_category_data = weight_category_data, age_category_data = age_category_data, round_data = round_data)
+    reg_list_for_constructor = RegistrationDB.query.filter_by(competition_id = comp_id, weight_cat_id = weight_cat_id, age_cat_id = age_cat_id).all()
+
+    return render_template('fightconstructorstep2.html', competition_data  = competition_data, weight_category_data = weight_category_data, age_category_data = age_category_data, round_data = round_data, reg_list_for_constructor = reg_list_for_constructor)
 
 
 
@@ -460,7 +462,8 @@ def fights():
 
 @app.route('/test')
 def test():
-    return render_template('test.html')
+    test_value = "Это значение, приехавшее с сервера"
+    return render_template('test.html', test_value = 2)
 @app.route('/test2')
 def test2():
     return render_template('test2.html')
