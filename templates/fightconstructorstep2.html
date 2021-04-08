@@ -62,11 +62,23 @@
 <script>
 $(document).ready(function(){
     $('input:checkbox').on('click', function(){
+        var checkboxes = document.querySelectorAll('input[id="checkregistration"]');
         var numberOfChecked = $('input:checkbox:checked').length;
         var totalCheckboxes = $('input:checkbox').length;
         var numberNotChecked = totalCheckboxes - numberOfChecked;
-        console.log(numberOfChecked)
-
+        console.log(numberOfChecked);
+        if (numberOfChecked >= 2) {
+            for(var i = 0; i < totalCheckboxes; i++){
+                if (checkboxes[i].checked !== true) {
+                  checkboxes[i].disabled = true;
+                }
+            }
+        }
+        else {
+            for(var i = 0; i < totalCheckboxes; i++){
+                checkboxes[i].disabled = false;
+            }
+        }
     })
 })
 </script>
