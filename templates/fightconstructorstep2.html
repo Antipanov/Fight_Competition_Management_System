@@ -27,40 +27,64 @@
                 <h6>Весовая категория: {{ weight_category_data.weight_category_name }} </h6>
                 <h6>Возрастная категория: {{ age_category_data.age_category_name }} </h6>
                 <h6>Раунд: {{ round_data.round_name }} </h6>
+
             </div>
         </div>
         <div class="row">
             <div class="col-lg-6 shadow p-3 mb-5 bg-white rounded">
                 <h5>Участники</h5>
-                {% for reg in reg_list_for_constructor %}
-                    <div class="form-check">
-                      <input id="checkregistration" name = "fighters_from_regs" class="form-check-input" type="checkbox" value={{ reg_list_for_constructor.id }}>
-                      <label class="form-check-label" for="checkregistration">
-                          {{ reg.fighter.name }} {{ reg.fighter.last_name }}
-                      </label>
-                    </div>
-                {% endfor %}
-            <hr/>
-            <button type="submit" class="btn btn-primary">Создать бой</button>
+                <form method="POST" action="{{ url_for('constractor_fighters_are_selected', comp_id = competition_data.competition_id, weight_cat_id = weight_category_data.weight_cat_id, age_cat_id = age_category_data.id, round_no = round_data.id)}}">
+                    {% for reg_id, parameters in fighters_in_left_column.items() %} <!-- итерируемся по словарю с id регистраций и данными по каждой из них-->
+                        {% if parameters['fight_is_exist'] %}
+                            <div class="form-check">
+                              <input disabled id="checkregistration" name = "fighters_from_regs" class="form-check-input" type="checkbox" value={{ reg_id }}>
+                              <label class="form-check-label" for="checkregistration">
+                                  {{ parameters['name'] }} {{ parameters['last_name'] }}
+                              </label>
+                            </div>
+                        {% else %}
+                            <div class="form-check">
+                              <input id="checkregistration" name = "fighters_from_regs" class="form-check-input" type="checkbox" value={{ reg_id }}>
+                              <label class="form-check-label" for="checkregistration">
+                                  {{ parameters['name'] }} {{ parameters['last_name'] }}
+                              </label>
+                            </div>
+                        {% endif %}
+
+
+                    {% endfor %}
+
+                    <hr/>
+                    <button type="submit" id="create_fight_button" class="btn btn-primary">Создать бой</button>
+                </form>
             </div>
             <div class="col-lg-6 shadow p-3 mb-5 bg-white rounded">
                 <h5>Поединки</h5>
-                {% for i in range(0, 3)%}
-                    <h6>Бой № {{i}}</h6>
-                    {% for i in range(0, 2)%}
-                        <p>Боец № {{i + 1}}</p>
-                    {% endfor %}
+                {% for fight in fights_data%}
+                    <div class="shadow bg-white rounded">
+                        <ul>
+                            <div class="d-flex justify-content-between" style="margin-right: 20px; margin-top: 0px; padding-top: 10px;">
+                                <h6>Бой №{{loop.index}}. {{ fight.fight_status }}</h6>
+                                <button type="button" class="btn btn-danger btn-sm">Удалить бой</button>
+                            </div>
+                            <li>{{fight.red_fighter.name}} {{fight.red_fighter.last_name}}</li>
+                            <li>{{fight.blue_fighter.name}} {{fight.blue_fighter.last_name}}</li>
+                        </ul>
+                    </div>
+
                 {% endfor %}
+
             </div>
         </div>
     </div>
-    {#weight_cat = {{ weight_cat }}<br>
-    age_cat = {{ age_cat }}<br>
-    round_no = {{ round_no }}#}
+
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script>
 $(document).ready(function(){
+    $("#create_fight_button").addClass('disabled');
+
+    var selected_fighters = [];
     $('input:checkbox').on('click', function(){
         var checkboxes = document.querySelectorAll('input[id="checkregistration"]');
         var numberOfChecked = $('input:checkbox:checked').length;
@@ -68,6 +92,14 @@ $(document).ready(function(){
         var numberNotChecked = totalCheckboxes - numberOfChecked;
         console.log(numberOfChecked);
         if (numberOfChecked >= 2) {
+            // надо получить в переменную список значений из чек-боксов
+            //var selected_fighters = [];
+            $.each($('input:checkbox:checked'), function(){
+                selected_fighters.push($(this).val());
+            });
+            console.log("favirite list is: " + selected_fighters)
+            // Дизейблим лишние чек-боксы и активируем кнопку
+            $("#create_fight_button").removeClass('disabled');
             for(var i = 0; i < totalCheckboxes; i++){
                 if (checkboxes[i].checked !== true) {
                   checkboxes[i].disabled = true;
@@ -75,11 +107,15 @@ $(document).ready(function(){
             }
         }
         else {
+            $("#create_fight_button").addClass('disabled')
             for(var i = 0; i < totalCheckboxes; i++){
                 checkboxes[i].disabled = false;
             }
         }
-    })
+    }) // конец обработчика клика на чек-бокс
+
+
+
 })
 </script>
 

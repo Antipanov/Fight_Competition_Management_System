@@ -14,7 +14,9 @@
 <body>
 
 {% for i in range(0, test_value)%}
-<p>тест</p>
+    {%if i == 1 %}
+        <p>тест</p>
+    {%endif%}
 {% endfor %}
 
 <p></p>

@@ -97,6 +97,7 @@ class FightsDB(db.Model):
     red_fighter_id = db.Column(db.Integer, db.ForeignKey('fightersDB.fighter_id')) # id красного бойца
     blue_fighter_id = db.Column(db.Integer, db.ForeignKey('fightersDB.fighter_id')) # id синего бойца
     fight_status = db.Column(db.String)  # статус боя Запланирован, Завершен
+    fight_status_planned = db.Column(db.Boolean)
     red_fighter_score = db.Column(db.Integer) # счет красного бойца
     blue_fighter_score = db.Column(db.Integer) # счет синего бойца
     won_id = db.Column(db.Integer) # результат боя Кто выиграл. Например. ID победителя
@@ -104,17 +105,22 @@ class FightsDB(db.Model):
     draw_status = db.Column(db.Boolean) # если ничья, то True
     competition_id = db.Column(db.Integer, db.ForeignKey('competitionsDB.competition_id'))
 
-
 db.create_all()
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 
 
 """Регистрации"""
-registration_1 = RegistrationDB(id=1, competition_id = 1, fighter_id = 1, fighter_registration_weight=90)
-registration_2 = RegistrationDB(id=2, competition_id = 1, fighter_id = 2, fighter_registration_weight=50)
+registration_1 = RegistrationDB(id=1, competition_id = 1, fighter_id = 1, fighter_registration_weight=20, fighter_registration_age = 6, weight_cat_id = 1, age_cat_id = 1)
+registration_2 = RegistrationDB(id=2, competition_id = 1, fighter_id = 2, fighter_registration_weight=20, fighter_registration_age = 6, weight_cat_id = 1, age_cat_id = 1)
+registration_3 = RegistrationDB(id=3, competition_id = 1, fighter_id = 3, fighter_registration_weight=20, fighter_registration_age = 6, weight_cat_id = 1, age_cat_id = 1)
+registration_4 = RegistrationDB(id=4, competition_id = 1, fighter_id = 4, fighter_registration_weight=20, fighter_registration_age = 6, weight_cat_id = 1, age_cat_id = 1)
+
+
 db.session.add(registration_1)
 db.session.add(registration_2)
+db.session.add(registration_3)
+db.session.add(registration_4)
 
 """Возрастные категории"""
 age_category_1 = AgecategoriesDB(id=1, sort_index=500, age_category_name= 'до 12', age_category_start=0, age_category_finish=12)
@@ -163,12 +169,12 @@ fighter_two = FightersDB(fighter_id = 2, name = "Николай", last_name = "�
 fighter_three = FightersDB(fighter_id = 3, name = "Арнольд", last_name = "Шварценнегер", active_status = 1, fighter_image = "https://www.googleapis.com/drive/v3/files/1mUiWSsjBWFKAlv7eHjmev1-guNDGjfvs?alt=media&key=AIzaSyAzF0o5u3oAVI6udcZH-h5dJ_uwRzBmOsQ")
 fighter_four = FightersDB(fighter_id = 4, name = "Сильвестер", last_name = "Сталонне", active_status = 1, fighter_image = "https://www.googleapis.com/drive/v3/files/1NSNxtmpQLYzz-yFTLD_JRDK9r0Iv1ZT8?alt=media&key=AIzaSyAzF0o5u3oAVI6udcZH-h5dJ_uwRzBmOsQ")
 
-"""Бой в таблице """
-fight_one = FightsDB(fight_id = 1, round_number = "полуфинал", red_fighter_id = 1, blue_fighter_id = 2, fight_status = "Запланирован", competition_id = 1)
-fight_two = FightsDB(fight_id = 2, round_number = "4-круг", red_fighter_id = 3, blue_fighter_id = 4, fight_status = "Запланирован", competition_id = 1)
+#"""Бой в таблице """
+#fight_one = FightsDB(fight_id = 1, round_number = "полуфинал", fight_status_planned = True, red_fighter_id = 1, blue_fighter_id = 2, fight_status = "Запланирован", competition_id = 1)
+#fight_two = FightsDB(fight_id = 2, round_number = "4-круг", fight_status_planned = True, red_fighter_id = 3, blue_fighter_id = 4, fight_status = "Запланирован", competition_id = 1)
 
-db.session.add(fight_one)
-db.session.add(fight_two)
+#db.session.add(fight_one)
+#db.session.add(fight_two)
 try:
    db.session.commit()
 except Exception as e:
@@ -237,6 +243,71 @@ def competitions():
     competitions_data = CompetitionsDB.query.all()
     return render_template('competitions.html', competitions_data = competitions_data)
 
+# Обработчик формы выбора бойцов в конструкторе
+@app.route('/competitions/<int:comp_id>/constructor/step2/weightcat/<int:weight_cat_id>/agecat/<int:age_cat_id>/roundno/<int:round_no>/fighters_selected', methods= ['GET', 'POST'])
+def constractor_fighters_are_selected(comp_id, weight_cat_id, age_cat_id, round_no):
+
+    if request.method == 'POST':
+        # Получаем список getlist из формы. Мы получаем по факту два значения айдишников бойцов, которыпе выбраны в форме
+        selected_fighters = request.form.getlist('fighters_from_regs')
+        # Проверяем, что список не пустой
+        if len(selected_fighters) >0:
+            # Присваиваем красному бойцу айдишник первого
+            red_fighter_id = selected_fighters[0]
+            # и присваиваем синему бойцу айдишник второго
+            blue_fighter_id = selected_fighters[1]
+            # Сохздаем новый бой с новыми бойцами
+            new_fight = FightsDB(round_number = round_no, fight_status_planned = True, weight_category = weight_cat_id, age_category = age_cat_id, red_fighter_id = red_fighter_id, blue_fighter_id = blue_fighter_id, fight_status = "Запланирован", red_fighter_score = 0, blue_fighter_score = 0, competition_id = comp_id)
+            db.session.add(new_fight)
+            try:
+                db.session.commit()
+            except Exception as e:
+                print(e)
+                db.session.rollback()
+            # Сейчас нас надо перенаправиться на оригинальную вьюху,передав ей все параметры
+            return redirect(url_for('fight_constructor_step2', comp_id = comp_id, weight_cat_id = weight_cat_id, age_cat_id = age_cat_id, round_no = round_no))
+    return "Не удалось создать бой"
+
+
+# Конструктор поединков Шаг 2. Создание боев
+@app.route('/competitions/<int:comp_id>/constructor/step2/weightcat/<int:weight_cat_id>/agecat/<int:age_cat_id>/roundno/<int:round_no>')
+def fight_constructor_step2(comp_id, weight_cat_id, age_cat_id, round_no):
+    competition_data = CompetitionsDB.query.get(comp_id)
+    weight_category_data = WeightcategoriesDB.query.get(weight_cat_id)
+    age_category_data = AgecategoriesDB.query.get(age_cat_id)
+    round_data = RoundsDB.query.get(round_no)
+    reg_list_for_constructor = RegistrationDB.query.filter_by(competition_id = comp_id, weight_cat_id = weight_cat_id, age_cat_id = age_cat_id).all()
+    fights_data = FightsDB.query.filter_by(competition_id=comp_id, round_number=round_no, weight_category=weight_cat_id, age_category=age_cat_id).all()
+    fights_data_qty = FightsDB.query.filter_by(competition_id=comp_id, round_number=round_no, weight_category=weight_cat_id, age_category=age_cat_id).count()
+
+    # Нужно создать словарь. И итерироваться по словарю, а не по запросу из базы
+    fighters_in_left_column = {}
+    for reg in reg_list_for_constructor: #  итерируемся по регистрациям
+        parameters ={}
+        if fights_data_qty>0: # проверяем, есть ли бои в нашей выборке
+            for fight in fights_data:
+                #  если бои есть, то мы проверяем есть ли среди боев бойцы из регистрации
+                # Если есть, то присваиваем статус, что бой с этой регистрацией уже существует
+                if reg.fighter_id == fight.red_fighter_id or reg.fighter_id == fight.blue_fighter_id:
+                    parameters['name'] = reg.fighter.name
+                    parameters['last_name'] = reg.fighter.last_name
+                    parameters['fight_is_exist'] = True
+                    break
+                else:
+                    parameters['name'] = reg.fighter.name
+                    parameters['last_name'] = reg.fighter.last_name
+                    parameters['fight_is_exist'] = False
+        else:
+            parameters['name'] = reg.fighter.name
+            parameters['last_name'] = reg.fighter.last_name
+            parameters['fight_is_exist'] = False
+        fighters_in_left_column[reg.id] = parameters
+
+    print(fighters_in_left_column)
+    return render_template('fightconstructorstep2.html', fighters_in_left_column = fighters_in_left_column, fights_data = fights_data, competition_data  = competition_data, weight_category_data = weight_category_data, age_category_data = age_category_data, round_data = round_data, reg_list_for_constructor = reg_list_for_constructor)
+
+
+
 # Конструктор поединков. Выбор параметров. constructor view
 @app.route('/competitions/<int:comp_id>/constructor', methods= ['GET', 'POST'])
 def fight_constructor(comp_id):
@@ -251,18 +322,6 @@ def fight_constructor(comp_id):
         round_no = request.form.get('round_radio')
         return redirect(url_for('fight_constructor_step2', comp_id = comp_id, weight_cat_id = weight_cat, age_cat_id = age_cat, round_no = round_no))
     return render_template('fightconstructor.html', competition_data=competition_data, weight_categories = weight_categories, rounds = rounds, age_categories = age_categories)
-
-# Конструктор поединков Шаг 2. Создание боев
-@app.route('/competitions/<int:comp_id>/constructor/step2/weightcat/<int:weight_cat_id>/agecat/<int:age_cat_id>/roundno/<int:round_no>')
-def fight_constructor_step2(comp_id, weight_cat_id, age_cat_id, round_no):
-    competition_data = CompetitionsDB.query.get(comp_id)
-    weight_category_data = WeightcategoriesDB.query.get(weight_cat_id)
-    age_category_data = AgecategoriesDB.query.get(age_cat_id)
-    round_data = RoundsDB.query.get(round_no)
-    reg_list_for_constructor = RegistrationDB.query.filter_by(competition_id = comp_id, weight_cat_id = weight_cat_id, age_cat_id = age_cat_id).all()
-
-    return render_template('fightconstructorstep2.html', competition_data  = competition_data, weight_category_data = weight_category_data, age_category_data = age_category_data, round_data = round_data, reg_list_for_constructor = reg_list_for_constructor)
-
 
 
 
