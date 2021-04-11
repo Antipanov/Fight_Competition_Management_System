@@ -243,6 +243,22 @@ def competitions():
     competitions_data = CompetitionsDB.query.all()
     return render_template('competitions.html', competitions_data = competitions_data)
 
+# Удаление боя из конструктора
+@app.route('/competitions/<int:comp_id>/constructor/step2/weightcat/<int:weight_cat_id>/agecat/<int:age_cat_id>/roundno/<int:round_no>/fight_id/<int:fight_id>/fight_delete')
+def delete_fight(comp_id, weight_cat_id, age_cat_id, round_no, fight_id):
+    fight_to_delete = FightsDB.query.get(fight_id)
+    if fight_to_delete is None:
+        abort(404, description="No Fight was Found with the given ID")
+    db.session.delete(fight_to_delete)
+    try:
+        db.session.commit()
+    except Exception as e:
+        print(e)
+        db.session.rollback()
+    return redirect(url_for('fight_constructor_step2', comp_id = comp_id, weight_cat_id = weight_cat_id, age_cat_id = age_cat_id, round_no = round_no))
+
+
+
 # Обработчик формы выбора бойцов в конструкторе
 @app.route('/competitions/<int:comp_id>/constructor/step2/weightcat/<int:weight_cat_id>/agecat/<int:age_cat_id>/roundno/<int:round_no>/fighters_selected', methods= ['GET', 'POST'])
 def constractor_fighters_are_selected(comp_id, weight_cat_id, age_cat_id, round_no):
@@ -282,8 +298,10 @@ def fight_constructor_step2(comp_id, weight_cat_id, age_cat_id, round_no):
 
     # Нужно создать словарь. И итерироваться по словарю, а не по запросу из базы
     fighters_in_left_column = {}
+    list_of_selected_fighters = []
     for reg in reg_list_for_constructor: #  итерируемся по регистрациям
         parameters ={}
+
         if fights_data_qty>0: # проверяем, есть ли бои в нашей выборке
             for fight in fights_data:
                 #  если бои есть, то мы проверяем есть ли среди боев бойцы из регистрации
@@ -292,6 +310,7 @@ def fight_constructor_step2(comp_id, weight_cat_id, age_cat_id, round_no):
                     parameters['name'] = reg.fighter.name
                     parameters['last_name'] = reg.fighter.last_name
                     parameters['fight_is_exist'] = True
+                    list_of_selected_fighters.append(reg.fighter_id)
                     break
                 else:
                     parameters['name'] = reg.fighter.name
@@ -303,8 +322,10 @@ def fight_constructor_step2(comp_id, weight_cat_id, age_cat_id, round_no):
             parameters['fight_is_exist'] = False
         fighters_in_left_column[reg.id] = parameters
 
+
     print(fighters_in_left_column)
-    return render_template('fightconstructorstep2.html', fighters_in_left_column = fighters_in_left_column, fights_data = fights_data, competition_data  = competition_data, weight_category_data = weight_category_data, age_category_data = age_category_data, round_data = round_data, reg_list_for_constructor = reg_list_for_constructor)
+    print(list_of_selected_fighters)
+    return render_template('fightconstructorstep2.html', list_of_selected_fighters = list_of_selected_fighters, fighters_in_left_column = fighters_in_left_column, fights_data = fights_data, competition_data  = competition_data, weight_category_data = weight_category_data, age_category_data = age_category_data, round_data = round_data, reg_list_for_constructor = reg_list_for_constructor)
 
 
 

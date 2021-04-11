@@ -65,7 +65,8 @@
                         <ul>
                             <div class="d-flex justify-content-between" style="margin-right: 20px; margin-top: 0px; padding-top: 10px;">
                                 <h6>Бой №{{loop.index}}. {{ fight.fight_status }}</h6>
-                                <button type="button" class="btn btn-danger btn-sm">Удалить бой</button>
+                                <a href="{{url_for('delete_fight', fight_id = fight.fight_id, comp_id = competition_data.competition_id, weight_cat_id = weight_category_data.weight_cat_id, age_cat_id = age_category_data.id, round_no = round_data.id)}}"><button type="button" class="btn btn-danger btn-sm">Удалить</button></a>
+
                             </div>
                             <li>{{fight.red_fighter.name}} {{fight.red_fighter.last_name}}</li>
                             <li>{{fight.blue_fighter.name}} {{fight.blue_fighter.last_name}}</li>
@@ -78,28 +79,33 @@
         </div>
     </div>
 
-
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script>
 $(document).ready(function(){
-    $("#create_fight_button").addClass('disabled');
+    //$("#create_fight_button").addClass('disabled');
+    $("#create_fight_button").prop('disabled', true)
 
-    var selected_fighters = [];
+    //selected_fighters = []
+    selected_fighters = {{ list_of_selected_fighters }}
+    numberOfdisabled = selected_fighters.length
+    console.log('numberOfdisabled: ' + numberOfdisabled)
+    console.log(selected_fighters)
     $('input:checkbox').on('click', function(){
         var checkboxes = document.querySelectorAll('input[id="checkregistration"]');
         var numberOfChecked = $('input:checkbox:checked').length;
+        console.log(numberOfChecked)
         var totalCheckboxes = $('input:checkbox').length;
         var numberNotChecked = totalCheckboxes - numberOfChecked;
-        console.log(numberOfChecked);
         if (numberOfChecked >= 2) {
             // надо получить в переменную список значений из чек-боксов
             //var selected_fighters = [];
             $.each($('input:checkbox:checked'), function(){
                 selected_fighters.push($(this).val());
             });
-            console.log("favirite list is: " + selected_fighters)
+            console.log("selected_fighters list is: " + selected_fighters)
             // Дизейблим лишние чек-боксы и активируем кнопку
-            $("#create_fight_button").removeClass('disabled');
+            //$("#create_fight_button").removeClass('disabled');
+            $("#create_fight_button").prop('disabled', false)
             for(var i = 0; i < totalCheckboxes; i++){
                 if (checkboxes[i].checked !== true) {
                   checkboxes[i].disabled = true;
@@ -107,10 +113,11 @@ $(document).ready(function(){
             }
         }
         else {
-            $("#create_fight_button").addClass('disabled')
-            for(var i = 0; i < totalCheckboxes; i++){
-                checkboxes[i].disabled = false;
-            }
+            //$("#create_fight_button").addClass('disabled')
+            $("#create_fight_button").prop('disabled', true)
+            //for(var i = 0; i < totalCheckboxes; i++){
+            //    checkboxes[i].disabled = false;
+            //}
         }
     }) // конец обработчика клика на чек-бокс
 
