@@ -10,13 +10,66 @@
 </head>
 <body>
     <div class="container">
-        <h1 class="display-2" id="timer_slave" style="text-align: center; color: blueviolet"></h1>
-
-        <div class="col-6 display-2">
-         <span id="left_fighter_score_result_text">0</span>
-            <span> : </span>
-            <span id="right_fighter_score_result_text">0</span>
+        <div class="row justify-content-between">
+            <div class="col-lg-6">
+                <h3 id="competition_name"></h3>
+                <h4 id="age_category_name"></h4>
+                <h4 id="weight_category_name"></h4>
+                <h4 id="round_no"></h4>
+            </div>
+            <div class="col-lg-6 text-right">
+                <h1>ТАЙМЕР</h1>
+                <div class="display-3">
+                    <span id="timer_slave"></span>
+                </div>
+            </div>
         </div>
+        <div class="row"> <!--ряд с участниками -->
+
+            <div class="col d-flex justify-content-start"> <!--левая колонка для левого участника -->
+
+                    <div style="background-color: red; width: 5%; margin-right: 5px"></div> <!-- это див с красной полоской -->
+                    <div> <!-- это див с левым участником-->
+                            {#{% for fighter in fighters_from_DB %}
+                                {% if fighter.red_fighter == True %}#}
+                                    <h2 id="red_fighter_name"></h2>
+                                    <img id="red_fighter_pic" src="" class="img-fluid" alt="Responsive image" width="200" height="200">
+                                {#{% endif %}
+                            {% endfor %}#}
+
+                    </div> <!-- конец дива с левым участником-->
+            </div> <!--конец левой колонкя для левого участника -->
+            <div class="col">
+
+                <div class="display-4 d-flex justify-content-center">СЧЕТ</div>
+
+                <div class="display-2 d-flex justify-content-center">
+                 <span id="left_fighter_score_result_text">0</span>
+                    <span> : </span>
+                    <span id="right_fighter_score_result_text">0</span>
+                </div>
+
+            </div>
+
+            <div class="col"> <!--правая колонка для правого участника -->
+                <div style="text-align: left"> <!-- это див с правым участником-->
+                    {#{% for fighter in fighters_from_DB %}
+                        {% if fighter.red_fighter == False %}#}
+                            <h2 id="blue_fighter_name"></h2>
+                            <img id="blue_fighter_pic" src="" class="img-fluid" alt="Responsive image" width="200" height="200">
+                        {#{% endif %}
+                    {% endfor %}#}
+
+                </div> <!-- конец дива с правым участником-->
+            </div><!--конец правой колонки для правого участника -->
+
+
+        </div> <!--конец ряда с участниками -->
+
+
+
+
+
     </div>
 
 
@@ -27,6 +80,7 @@
     <script>
 
         $(document).ready(function(){
+
             /*функция, которая забирает время, а отдает текст*/
             function timer_display(current_time_value){
                 var minutes = ('0' + Math.floor((current_time_value / 60) % 60)).slice(-2);
@@ -47,6 +101,15 @@
             socket.on('update_timer_value', function (msg){
                 console.log(msg.timer_sent)
                 document.getElementById('timer_slave').innerHTML = timer_display(msg.timer_sent)
+            })
+
+            socket.on('update_competition_name', function (msg){
+                document.getElementById('competition_name').innerHTML = msg.competition_name
+                document.getElementById('weight_category_name').innerHTML = "Весовая категория: " + msg.weight_category_name
+                document.getElementById('age_category_name').innerHTML = "Возрастная категория: " + msg.age_category_name
+                document.getElementById('round_no').innerHTML = "Круг: " + msg.roundno
+                document.getElementById("red_fighter_pic").src = msg.red_pic
+                document.getElementById("blue_fighter_pic").src = msg.blue_pic
             })
 
             socket.on('update_left_fighter_score', function (msg){

@@ -26,7 +26,7 @@ class WeightcategoriesDB(db.Model):
     weight_category_start = db.Column(db.Integer)
     weight_category_finish = db.Column(db.Integer)
     registrations = db.relationship('RegistrationDB', backref='weight_categories')
-
+    fights = db.relationship('FightsDB', backref = 'weight_category_backref')
 
 
 
@@ -46,6 +46,7 @@ class RoundsDB(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     round_name = db.Column(db.String)
     sort_index = db.Column(db.Integer)
+    fights = db.relationship('FightsDB', backref = 'roundNo')
 
 """Модель для возрастных категорий"""
 class AgecategoriesDB(db.Model):
@@ -55,6 +56,7 @@ class AgecategoriesDB(db.Model):
     age_category_start = db.Column(db.Integer)
     age_category_finish = db.Column(db.Integer)
     registrations = db.relationship('RegistrationDB', backref='age_categories')
+    fights = db.relationship('FightsDB', backref = 'age_category_backref')
 
 
 
@@ -82,6 +84,7 @@ class FightersDB(db.Model):
     name = db.Column(db.String)
     last_name = db.Column(db.String)
     fighter_image = db.Column(db.String)
+    fighter_image_id = db.Column(db.String)
     birthday = db.Column(db.Date, default=datetime.utcnow)
     active_status = db.Column(db.Integer)
     red_fighter = db.relationship('FightsDB', backref='red_fighter', foreign_keys="[FightsDB.red_fighter_id]")
@@ -91,9 +94,9 @@ class FightersDB(db.Model):
 """Model for fights"""
 class FightsDB(db.Model):
     fight_id = db.Column(db.Integer, primary_key=True)
-    round_number = db.Column(db.String) # номер круга, в котором проводится бой. Текст ,потому что есть полуфинал и финал
-    weight_category = db.Column(db.String) # весовая категория, в которой проводится бой
-    age_category = db.Column(db.String)  # возрастная категория, в которой проводится бой
+    round_number = db.Column(db.Integer, db.ForeignKey('roundsDB.id')) # номер круга, в котором проводится бой. Текст ,потому что есть полуфинал и финал
+    weight_category = db.Column(db.Integer, db.ForeignKey('weightcategoriesDB.weight_cat_id')) # весовая категория, в которой проводится бой
+    age_category = db.Column(db.Integer, db.ForeignKey('agecategoriesDB.id'))  # возрастная категория, в которой проводится бой
     red_fighter_id = db.Column(db.Integer, db.ForeignKey('fightersDB.fighter_id')) # id красного бойца
     blue_fighter_id = db.Column(db.Integer, db.ForeignKey('fightersDB.fighter_id')) # id синего бойца
     fight_status = db.Column(db.String)  # статус боя Запланирован, Завершен
@@ -224,7 +227,13 @@ values = {
     'fight_duration_server_value': settings_row.Fight_duration_DB_Field,
     'added_time_server_value': settings_row.Added_time_DB_Field,
     'left_fighter_score': 0,
-    'right_fighter_score': 0
+    'right_fighter_score': 0,
+    'competition_name': '',
+    'current_fight_id':0,
+    'weight_category_name':'',
+    'age_category_name':'',
+    'roundno':'',
+    'red_pic': ''
 }
 
 
@@ -353,6 +362,7 @@ def competition_fights_view(comp_id):
     fights_in_competition = competition_data.competition_fights.all()
     return render_template('fights.html', fights_in_competition = fights_in_competition, competition_data = competition_data)
 
+# создание весовой категории
 @app.route('/weightcatgory/new', methods=["POST", "GET"])
 def weight_category_new():
     form = WeightCategoriesForm()
@@ -520,20 +530,29 @@ def competition_view(competition_id):
     return render_template('competition.html', competition_data = competition_data, form=form)
 
 
-
-
-
-
-@app.route('/fights/<int:fight_id>')
-def fight(fight_id):
+# Карточка боя
+@app.route('/competitions/<int:comp_id>/weightcat/<int:weight_cat_id>/agecat/<int:age_cat_id>/roundno/<int:round_no>/fights/<int:fight_id>')
+def fight(comp_id, weight_cat_id, age_cat_id, round_no, fight_id):
+    competition = CompetitionsDB.query.get(comp_id)
+    weightcat = WeightcategoriesDB.query.get(weight_cat_id)
+    agecat = AgecategoriesDB.query.get(age_cat_id)
+    round = RoundsDB.query.get(round_no)
     fight = FightsDB.query.get(fight_id)
+    values['current_fight_id'] = fight_id
+    #red_pic = fight.red_fighter.fighter_image
+    #values['red_pic'] = red_pic
+    #print(values['red_pic'])
     if fight is None:
         abort(404, description="Не найдено боев с указанным ID")
-    return render_template('referee.html', **values, fight = fight)
+    return render_template('referee.html', competition = competition, weightcat = weightcat, agecat = agecat, round = round, fight = fight, **values)
 
+# Visitor view
 @app.route('/visitor')
 def visitor():
-    return render_template('visitor.html', **values)
+    fight_id = values['current_fight_id']
+    fight = FightsDB.query.get(fight_id)
+
+    return render_template('visitor.html', **values, fight = fight)
 
 @app.route('/fights')
 def fights():
@@ -566,6 +585,18 @@ def value_changed(message):
 def timer_value_changed(timer_message):
     values['fight_duration_server_value'] = timer_message['timer_sent']
     emit('update_timer_value', timer_message, broadcast=True)
+
+
+@socketio.on('Fight_data')
+def fight_data_func(message):
+    values['competition_name'] = message['competition_name']
+    values['weight_category_name'] = message['weight_category_name']
+    values['age_category_name'] = message['age_category_name']
+    values['roundno'] = message['roundno']
+    values['red_pic'] = message['red_pic']
+    values['blue_pic'] = message['blue_pic']
+    emit('update_competition_name', message, broadcast=True)
+
 
 @socketio.on('Score value changed')
 def left_fighter_score_added_func(message):

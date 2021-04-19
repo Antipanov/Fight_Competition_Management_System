@@ -26,31 +26,33 @@ Referee
             <div class="col-lg-9 shadow p-3 mb-5 bg-white rounded text-center"> <!-- это колонка с карточкой боя -->
                 <nav aria-label="breadcrumb">
                       <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="{{url_for('fights')}}">Список боёв</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">Кумите. Бой 18</li>
+                        <li class="breadcrumb-item"><a href="{{url_for('competitions')}}">Список соревнований</a></li>
+                        <li class="breadcrumb-item"><a href="{{url_for('competition_view', competition_id = competition.competition_id)}}">{{ competition.competition_name }}</a></li>
+                        <li class="breadcrumb-item"><a href="{{url_for('competition_fights_view', comp_id = competition.competition_id)}}">Список боев</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Бой №{{ fight.fight_id }}</li>
                       </ol>
                 </nav>
-
+                <h6 class="text-left">Возрастная категория: {{ agecat.age_category_name }}. Весовая категория: {{ weightcat.weight_category_name }}. Круг: {{ round.round_name }}</h6>
                 <div class="row"> <!--ряд с участниками -->
+
                     <div class="col d-flex justify-content-start"> <!--левая колонка для левого участника -->
 
                             <div style="background-color: red; width: 5%; margin-right: 5px"></div> <!-- это див с красной полоской -->
                             <div> <!-- это див с левым участником-->
-                                    {#{% for fighter in fighters_from_DB %}
-                                        {% if fighter.red_fighter == True %}#}
-                                            <h2>{{ fight.red_fighter.name +" " + fight.red_fighter.last_name }}</h2>
-                                            <img src={{ fight.red_fighter.fighter_image }} class="img-fluid" alt="Responsive image" width="150" height="150">
-                                        {#{% endif %}
-                                    {% endfor %}#}
+
+                                <h2>{{ fight.red_fighter.name +" " + fight.red_fighter.last_name }}</h2>
+                                <img src= {{ fight.red_fighter.fighter_image }} class="float-left" alt="Responsive image" width="150" height="150">
+
 
                             </div> <!-- конец дива с левым участником-->
                     </div> <!--конец левой колонкя для левого участника -->
-                    <div class="col"> <!--правая колонка для правого участника -->
-                        <div style="text-align: left"> <!-- это див с правым участником-->
+                    <div class="col d-flex justify-content-start"> <!--правая колонка для правого участника -->
+                        <div style="background-color: blue; width: 5%; margin-right: 5px"></div> <!-- это див с красной полоской -->
+                        <div> <!-- это див с правым участником-->
                             {#{% for fighter in fighters_from_DB %}
                                 {% if fighter.red_fighter == False %}#}
                                     <h2>{{ fight.blue_fighter.name +" " + fight.blue_fighter.last_name }}</h2>
-                                    <img src={{ fight.blue_fighter.fighter_image }} class="img-fluid" alt="Responsive image" width="150" height="150">
+                                    <img src={{ fight.blue_fighter.fighter_image }} class="float-left" alt="Responsive image" width="150" height="150">
                                 {#{% endif %}
                             {% endfor %}#}
 
@@ -100,20 +102,64 @@ Referee
                     <button type="button" class="btn btn-danger btn-sm" id="reset_button">
                       Сброс таймера
                     </button>
-                </p>
+
                 <hr/>
                 {#<p>Добавить время#}
                     <button type="button" class="btn btn-info btn-sm" id="add_time_button">
                       Добавить время
                     </button>
+                <hr/>
+
+                <h3>Результат боя</h3>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="fightresult" id="winner_red_radio" value="winner_red">
+                  <label class="form-check-label" for="winner_red_radio">
+                    Победил {{ fight.red_fighter.name +" " + fight.red_fighter.last_name }}
+                  </label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="fightresult" id="winner_blue_radio" value="winner_blue">
+                  <label class="form-check-label" for="winner_blue_radio">
+                    Победил {{ fight.blue_fighter.name +" " + fight.blue_fighter.last_name }}
+                  </label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="fightresult" id="draw_radio" value="draw">
+                  <label class="form-check-label" for="draw_radio">
+                    Ничья
+                  </label>
+                </div>
+                <p></p>
+
+                <!-- Button trigger modal -->
+                <button id="fight-result-button" type="button" class="btn btn-outline-dark btn-lg btn-block" data-toggle="modal" data-target="#exampleModal">
+                  Завершить бой
+                </button>
+
+                <!-- Modal -->
+                <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Завершение боя</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                        <h5 id="modal_text"></h5>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Отменить</button>
+                        <button type="button" class="btn btn-primary">Сохранить</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
             </div> <!-- конец колонки с настройками -->
         </div><!--конец дива row в котором лежат два блока - карточка боя и настройки  -->
     </div> <!--конец дива Container -->
-
-
-
-
 
 
 
@@ -125,6 +171,26 @@ Referee
     <script>
 
         $(document).ready(function(){
+            $("#fight-result-button").prop('disabled', true)
+            $('input[type=radio][name=fightresult]').change(function() {
+                $("#fight-result-button").prop('disabled', false)
+            });
+
+
+            {#Обработчик кнопки "Завершени боя". Передаем в модальное окно значение из результата боя#}
+            $('#fight-result-button').on('click', function() {
+                var fight_result = $('input[name="fightresult"]:checked').val();
+                var text_in_modal = ''
+                if (fight_result === 'winner_red'){
+                    text_in_modal = 'Победил {{ fight.red_fighter.name +" " + fight.red_fighter.last_name }}'
+                } else if(fight_result === 'winner_blue'){
+                    text_in_modal = 'Победил {{ fight.blue_fighter.name +" " + fight.blue_fighter.last_name }}'
+                } else {
+                    text_in_modal = 'Ничья'
+                }
+                document.getElementById('modal_text').innerHTML = text_in_modal
+
+            })
             /*функция, которая забирает время, а отдает текст*/
             function timer_display(current_time_value){
                 var minutes = ('0' + Math.floor((current_time_value / 60) % 60)).slice(-2);
@@ -147,11 +213,19 @@ Referee
             var timer = document.getElementById('timer_master');
             var left_score = {{ left_fighter_score }};
             var right_score = 0;
+            var competition_name = '{{competition.competition_name}}';
+            var weight_category_name = '{{ weightcat.weight_category_name }}'
+            var age_category_name = '{{ agecat.age_category_name }}'
+            var roundno = '{{ round.round_name }}'
+            var red_pic = '{{ fight.red_fighter.fighter_image }}'
+            var blue_pic = '{{ fight.blue_fighter.fighter_image }}'
+
+            socket.emit('Fight_data', {'competition_name': competition_name, 'weight_category_name': weight_category_name, 'age_category_name': age_category_name, 'roundno': roundno, 'red_pic': red_pic, 'blue_pic': blue_pic});
 
         // An event handler for a change of value
         //Event handler is defined on class sync thus will work for both slider1 and slider2.
         //The line having socket.emit() emits a custom event named slider value changed which can then be received on server side
-        $('input.sync').on('input', function(event) {
+        $('input.sync').on('input', function() {
             socket.emit('Slider value changed', {
                 who:$(this).attr('id'),
                 data: $(this).val()
@@ -162,7 +236,7 @@ Referee
         // При изменении значения счетчика нужно отправлять на сервер новое значение.
         // Значит, эта отправка должна быть внутри конструкции $('input.sync').on('input', function(event) {
         //button_start_stop = document.getElementById('start-stop-button')
-            $('#start-stop-button').on('click', function(event) {
+            $('#start-stop-button').on('click', function() {
                 var $this = $(this);
                 if ($this.hasClass('btn-dark')) {
                     $this.removeClass('btn-dark').addClass('btn-primary');
@@ -172,7 +246,7 @@ Referee
                 }
 
 
-                if (myInterval == -1 && time >0) {
+                if (myInterval === -1 && time >0) {
 
                         document.getElementById('start-stop-button').innerHTML = 'Pause';
                         myInterval = setInterval(function(){
