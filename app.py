@@ -49,6 +49,7 @@ class RoundsDB(db.Model):
     round_name = db.Column(db.String)
     sort_index = db.Column(db.Integer)
     fights = db.relationship('FightsDB', backref = 'roundNo')
+    test_field = db.Column(db.String)
 
 """Модель для возрастных категорий"""
 class AgecategoriesDB(db.Model):
