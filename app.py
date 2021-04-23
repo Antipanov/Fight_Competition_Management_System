@@ -169,10 +169,10 @@ competition_one = CompetitionsDB(competition_id = 1, competition_name = "Пер�
 db.session.add(competition_one)
 
 """Бойцы """
-fighter_one = FightersDB(fighter_id = 1, name = "Конор", last_name = "МакГрегор", active_status = 1, fighter_image = "https://drive.google.com/uc?export=download&id=1Mt35oyUIxBdtHDkBmiT6ZjMk0sB6qZpZ")
-fighter_two = FightersDB(fighter_id = 2, name = "Николай", last_name = "Валуев", active_status = 1, fighter_image = "https://drive.google.com/uc?export=download&id=1SV3wNHUjuRdHE4RYrzsYMz3i6hGMryJQ")
-fighter_three = FightersDB(fighter_id = 3, name = "Арнольд", last_name = "Шварценнегер", active_status = 1, fighter_image = "https://www.googleapis.com/drive/v3/files/1mUiWSsjBWFKAlv7eHjmev1-guNDGjfvs?alt=media&key=AIzaSyAzF0o5u3oAVI6udcZH-h5dJ_uwRzBmOsQ")
-fighter_four = FightersDB(fighter_id = 4, name = "Сильвестер", last_name = "Сталонне", active_status = 1, fighter_image = "https://www.googleapis.com/drive/v3/files/1NSNxtmpQLYzz-yFTLD_JRDK9r0Iv1ZT8?alt=media&key=AIzaSyAzF0o5u3oAVI6udcZH-h5dJ_uwRzBmOsQ")
+fighter_one = FightersDB(fighter_id = 1, name = "Конор", last_name = "МакГрегор", active_status = 1, fighter_image = "https://drive.google.com/uc?id=1Mt35oyUIxBdtHDkBmiT6ZjMk0sB6qZpZ")
+fighter_two = FightersDB(fighter_id = 2, name = "Николай", last_name = "Валуев", active_status = 1, fighter_image = "https://drive.google.com/uc?id=1SV3wNHUjuRdHE4RYrzsYMz3i6hGMryJQ")
+fighter_three = FightersDB(fighter_id = 3, name = "Арнольд", last_name = "Шварценнегер", active_status = 1, fighter_image = "https://drive.google.com/uc?id=1mUiWSsjBWFKAlv7eHjmev1-guNDGjfvs")
+fighter_four = FightersDB(fighter_id = 4, name = "Сильвестер", last_name = "Сталонне", active_status = 1, fighter_image = "https://drive.google.com/uc?id=1NSNxtmpQLYzz-yFTLD_JRDK9r0Iv1ZT8")
 
 #"""Бой в таблице """
 #fight_one = FightsDB(fight_id = 1, round_number = "полуфинал", fight_status_planned = True, red_fighter_id = 1, blue_fighter_id = 2, fight_status = "Запланирован", competition_id = 1)

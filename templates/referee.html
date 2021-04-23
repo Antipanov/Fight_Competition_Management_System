@@ -222,7 +222,7 @@ Referee
             var blue_pic = '{{ fight.blue_fighter.fighter_image }}'
 
             socket.emit('Fight_data', {'competition_name': competition_name, 'weight_category_name': weight_category_name, 'age_category_name': age_category_name, 'roundno': roundno, 'red_pic': red_pic, 'blue_pic': blue_pic});
-
+            console.log("red_pic =" + red_pic)
         // An event handler for a change of value
         //Event handler is defined on class sync thus will work for both slider1 and slider2.
         //The line having socket.emit() emits a custom event named slider value changed which can then be received on server side
