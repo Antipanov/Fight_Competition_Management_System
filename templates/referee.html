@@ -109,7 +109,7 @@ Referee
                       Добавить время
                     </button>
                 <hr/>
-
+                <form method="POST" action="{{ url_for('fight_finished', fight_id= fight.fight_id)}}">
                 <h3>Результат боя</h3>
                 <div class="form-check">
                   <input class="form-check-input" type="radio" name="fightresult" id="winner_red_radio" value="winner_red">
@@ -151,13 +151,14 @@ Referee
                       </div>
                       <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Отменить</button>
-                        <button type="button" class="btn btn-primary">Сохранить</button>
+                        <button type="submit" class="btn btn-primary">Сохранить</button>
                       </div>
                     </div>
                   </div>
                 </div>
-
+                </form>
             </div> <!-- конец колонки с настройками -->
+
         </div><!--конец дива row в котором лежат два блока - карточка боя и настройки  -->
     </div> <!--конец дива Container -->
 

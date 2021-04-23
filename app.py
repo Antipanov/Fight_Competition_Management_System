@@ -6,6 +6,8 @@ from forms import SettingsForm, CompetitionForm, WeightCategoriesForm
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from sqlalchemy import desc, asc
+from flask_migrate import Migrate
+
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'vnkdjnfjknfl1232#'
@@ -100,7 +102,6 @@ class FightsDB(db.Model):
     red_fighter_id = db.Column(db.Integer, db.ForeignKey('fightersDB.fighter_id')) # id красного бойца
     blue_fighter_id = db.Column(db.Integer, db.ForeignKey('fightersDB.fighter_id')) # id синего бойца
     fight_status = db.Column(db.String)  # статус боя Запланирован, Завершен
-    fight_status_planned = db.Column(db.Boolean)
     red_fighter_score = db.Column(db.Integer) # счет красного бойца
     blue_fighter_score = db.Column(db.Integer) # счет синего бойца
     won_id = db.Column(db.Integer) # результат боя Кто выиграл. Например. ID победителя
@@ -282,7 +283,7 @@ def constractor_fighters_are_selected(comp_id, weight_cat_id, age_cat_id, round_
             # и присваиваем синему бойцу айдишник второго
             blue_fighter_id = selected_fighters[1]
             # Сохздаем новый бой с новыми бойцами
-            new_fight = FightsDB(round_number = round_no, fight_status_planned = True, weight_category = weight_cat_id, age_category = age_cat_id, red_fighter_id = red_fighter_id, blue_fighter_id = blue_fighter_id, fight_status = "Запланирован", red_fighter_score = 0, blue_fighter_score = 0, competition_id = comp_id)
+            new_fight = FightsDB(round_number = round_no, weight_category = weight_cat_id, age_category = age_cat_id, red_fighter_id = red_fighter_id, blue_fighter_id = blue_fighter_id, fight_status = "Запланирован", red_fighter_score = 0, blue_fighter_score = 0, competition_id = comp_id)
             db.session.add(new_fight)
             try:
                 db.session.commit()
@@ -332,8 +333,6 @@ def fight_constructor_step2(comp_id, weight_cat_id, age_cat_id, round_no):
         fighters_in_left_column[reg.id] = parameters
 
 
-    print(fighters_in_left_column)
-    print(list_of_selected_fighters)
     return render_template('fightconstructorstep2.html', list_of_selected_fighters = list_of_selected_fighters, fighters_in_left_column = fighters_in_left_column, fights_data = fights_data, competition_data  = competition_data, weight_category_data = weight_category_data, age_category_data = age_category_data, round_data = round_data, reg_list_for_constructor = reg_list_for_constructor)
 
 
@@ -528,6 +527,24 @@ def competition_view(competition_id):
 
         return render_template('competition.html', competition_data=competition_data, form=form)
     return render_template('competition.html', competition_data = competition_data, form=form)
+
+
+# Завершение боя
+@app.route('/fights/<int:fight_id>', methods=["POST", "GET"])
+def fight_finished(fight_id):
+    fight = FightsDB.query.get(fight_id)
+    if request.method == 'POST':
+        fight_rusult = request.form.get('fightresult')
+        if fight_rusult == 'winner_red':
+            fight.fight_status = 'Завершен'
+        try:
+            db.session.commit()
+        except Exception as e:
+            print(e)
+        db.session.rollback()
+
+
+        return fight_rusult
 
 
 # Карточка боя
