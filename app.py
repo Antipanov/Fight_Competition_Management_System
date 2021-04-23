@@ -1,5 +1,5 @@
+import os
 from flask import Flask, render_template, request, flash, abort, redirect, url_for
-from flask_migrate import Migrate
 from flask_socketio import SocketIO, emit
 from flask_bootstrap import Bootstrap
 from forms import SettingsForm, CompetitionForm, WeightCategoriesForm
@@ -11,6 +11,7 @@ from flask_migrate import Migrate
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'vnkdjnfjknfl1232#'
+#app.secret_key = os.environ.get('SECRET')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///fights.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
@@ -656,4 +657,5 @@ def settings_form():
 
 
 if __name__ == "__main__":
-    socketio.run(app)
+    #socketio.run(app)
+    app.run()
