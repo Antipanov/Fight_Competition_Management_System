@@ -207,7 +207,8 @@ Referee
 
 
                 // sending a connect request to the server.
-            var socket = io.connect('http://localhost:5000');
+            //var socket = io.connect('http://localhost:5000');
+            var socket = io.connect();
             var myInterval = -1;
             var audio = new Audio('https://drive.google.com/uc?export=download&confirm=no_antivirus&id=1Z9ZPjpxTQEBpegk5nU5lGdaNZlKTQf8K');
             var time = {{ fight_duration_server_value }}
