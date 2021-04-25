@@ -109,7 +109,7 @@ Referee
                       Добавить время
                     </button>
                 <hr/>
-                <form method="POST" action="{{ url_for('fight_finished', fight_id= fight.fight_id)}}">
+                <form method="POST" action="{{ url_for('fight_finished', comp_id = competition.competition_id, fight_id= fight.fight_id)}}">
                 <h3>Результат боя</h3>
                 <div class="form-check">
                   <input class="form-check-input" type="radio" name="fightresult" id="winner_red_radio" value="winner_red">

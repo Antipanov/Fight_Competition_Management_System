@@ -109,6 +109,7 @@ class FightsDB(db.Model):
     loose_id = db.Column(db.Integer) #  id бойца. который проиграл
     draw_status = db.Column(db.Boolean) # если ничья, то True
     competition_id = db.Column(db.Integer, db.ForeignKey('competitionsDB.competition_id'))
+    fight_result = db.Column(db.String)
 
 db.create_all()
 SQLALCHEMY_TRACK_MODIFICATIONS = False
@@ -531,13 +532,26 @@ def competition_view(competition_id):
 
 
 # Завершение боя
-@app.route('/fights/<int:fight_id>', methods=["POST", "GET"])
-def fight_finished(fight_id):
+@app.route('/competitions/<int:comp_id>/fights/<int:fight_id>', methods=["POST", "GET"])
+def fight_finished(comp_id, fight_id):
     fight = FightsDB.query.get(fight_id)
+    competition = CompetitionsDB.query.get(comp_id)
     if request.method == 'POST':
         fight_rusult = request.form.get('fightresult')
+        fight.fight_status = 'Завершен'
         if fight_rusult == 'winner_red':
-            fight.fight_status = 'Завершен'
+            fight.won_id = fight.red_fighter_id
+            fight.loose_id = fight.blue_fighter_id
+            fight.draw_status = False
+            fight.fight_result = 'Победил ' + fight.red_fighter.name
+        elif fight_rusult == 'winner_blue':
+            fight.won_id = fight.blue_fighter_id
+            fight.loose_id = fight.red_fighter_id
+            fight.draw_status = False
+        else:
+            fight.won_id = 0
+            fight.loose_id = 0
+            fight.draw_status = True
         try:
             db.session.commit()
         except Exception as e:
@@ -545,7 +559,7 @@ def fight_finished(fight_id):
         db.session.rollback()
 
 
-        return fight_rusult
+        return redirect (url_for('fights', comp_id = competition.competition_id))
 
 
 # Карточка боя
@@ -572,10 +586,11 @@ def visitor():
 
     return render_template('visitor.html', **values, fight = fight)
 
-@app.route('/fights')
-def fights():
+@app.route('/competitions/<int:comp_id>/fights')
+def fights(comp_id):
+    competition = CompetitionsDB.query.get(comp_id)
     fights = FightsDB.query.all()
-    return render_template('fights.html', **values, fights = fights)
+    return render_template('fights.html', **values, fights = fights, competition = competition)
 
 @app.route('/test')
 def test():
