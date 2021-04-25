@@ -543,15 +543,17 @@ def fight_finished(comp_id, fight_id):
             fight.won_id = fight.red_fighter_id
             fight.loose_id = fight.blue_fighter_id
             fight.draw_status = False
-            fight.fight_result = 'Победил ' + fight.red_fighter.name
+            fight.fight_result = 'Победил ' + fight.red_fighter.name + ' ' + fight.red_fighter.last_name
         elif fight_rusult == 'winner_blue':
             fight.won_id = fight.blue_fighter_id
             fight.loose_id = fight.red_fighter_id
             fight.draw_status = False
+            fight.fight_result = 'Победил ' + fight.blue_fighter.name + ' ' + fight.blue_fighter.last_name
         else:
             fight.won_id = 0
             fight.loose_id = 0
             fight.draw_status = True
+            fight.fight_result = 'Ничья'
         try:
             db.session.commit()
         except Exception as e:

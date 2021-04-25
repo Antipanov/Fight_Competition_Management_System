@@ -54,16 +54,9 @@ Fights
                           <td>{{ fight.blue_fighter.name +" " + fight.blue_fighter.last_name}}</td>
                           <td>{{fight.fight_status}}</td>
                           <td>
-                              {#{% if fight_status == 'Завершен' %}
-                                {% if fight_status == 'Завершен' %}
-
-                                  Ничья
-                              {% elif  %}
-
-                              {% else %}
-                                  Победил {{ fight.red_fighter.name +" "+ fight.red_fighter.last_name}}
-                              {% endif %}#}
-                          </td>
+                              {% if  fight.fight_result %}
+                                {{fight.fight_result}}</td>
+                            {% endif %}
                         </tr>
                       {% endfor %}
                       </tbody>
