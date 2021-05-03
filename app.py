@@ -110,6 +110,7 @@ class FightsDB(db.Model):
     draw_status = db.Column(db.Boolean) # если ничья, то True
     competition_id = db.Column(db.Integer, db.ForeignKey('competitionsDB.competition_id'))
     fight_result = db.Column(db.String)
+    ntest = db.Column(db.String)
 
 db.create_all()
 SQLALCHEMY_TRACK_MODIFICATIONS = False
