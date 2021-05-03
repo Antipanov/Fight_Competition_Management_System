@@ -287,7 +287,7 @@ def constractor_fighters_are_selected(comp_id, weight_cat_id, age_cat_id, round_
             # и присваиваем синему бойцу айдишник второго
             blue_fighter_id = selected_fighters[1]
             # Сохздаем новый бой с новыми бойцами
-            new_fight = FightsDB(round_number = round_no, weight_category = weight_cat_id, age_category = age_cat_id, red_fighter_id = red_fighter_id, blue_fighter_id = blue_fighter_id, fight_status = "Запланирован", red_fighter_score = 0, blue_fighter_score = 0, competition_id = comp_id)
+            new_fight = FightsDB(round_number = round_no, weight_category = weight_cat_id, age_category = age_cat_id, red_fighter_id = red_fighter_id, blue_fighter_id = blue_fighter_id, fight_status = False, red_fighter_score = 0, blue_fighter_score = 0, competition_id = comp_id)
             db.session.add(new_fight)
             try:
                 db.session.commit()
@@ -541,20 +541,26 @@ def fight_finished(comp_id, fight_id):
     if request.method == 'POST':
         fight_rusult = request.form.get('fightresult')
         fight.fight_status = 'Завершен'
+        fight.red_fighter_score = values['left_fighter_score']
+        fight.blue_fighter_score = values['right_fighter_score']
         if fight_rusult == 'winner_red':
             fight.won_id = fight.red_fighter_id
             fight.loose_id = fight.blue_fighter_id
             fight.draw_status = False
+            fight.fight_status = True # Завершен
             fight.fight_result = 'Победил ' + fight.red_fighter.name + ' ' + fight.red_fighter.last_name
+
         elif fight_rusult == 'winner_blue':
             fight.won_id = fight.blue_fighter_id
             fight.loose_id = fight.red_fighter_id
             fight.draw_status = False
+            fight.fight_status = True  # Завершен
             fight.fight_result = 'Победил ' + fight.blue_fighter.name + ' ' + fight.blue_fighter.last_name
         else:
             fight.won_id = 0
             fight.loose_id = 0
             fight.draw_status = True
+            fight.fight_status = True  # Завершен
             fight.fight_result = 'Ничья'
         try:
             db.session.commit()
@@ -565,9 +571,38 @@ def fight_finished(comp_id, fight_id):
 
         return redirect (url_for('fights', comp_id = competition.competition_id))
 
+#  выбор вьюхи для разного типа боя - завершенного или запланированного
+@app.route('/competitions/<int:comp_id>/weightcat/<int:weight_cat_id>/agecat/<int:age_cat_id>/roundno/<int:round_no>/fights/<int:fight_id>')
+def select_fight_status(comp_id, weight_cat_id, age_cat_id, round_no, fight_id):
+    competition = CompetitionsDB.query.get(comp_id)
+    weightcat = WeightcategoriesDB.query.get(weight_cat_id)
+    agecat = AgecategoriesDB.query.get(age_cat_id)
+    round = RoundsDB.query.get(round_no)
+    fight = FightsDB.query.get(fight_id)
+    if fight.fight_status:
+        return redirect (url_for('closed_fight', comp_id = competition.competition_id, weight_cat_id = weightcat.weight_cat_id, age_cat_id = agecat.id,  round_no = round.id, fight_id = fight.fight_id))
+    else:
+        return redirect (url_for('fight', comp_id = competition.competition_id, weight_cat_id = weightcat.weight_cat_id, age_cat_id = agecat.id,  round_no = round.id, fight_id = fight.fight_id))
+
+
+
+# карточка завершенного боя
+@app.route('/competitions/<int:comp_id>/weightcat/<int:weight_cat_id>/agecat/<int:age_cat_id>/roundno/<int:round_no>/fights/<int:fight_id>/closed')
+def closed_fight(comp_id, weight_cat_id, age_cat_id, round_no, fight_id):
+    competition = CompetitionsDB.query.get(comp_id)
+    weightcat = WeightcategoriesDB.query.get(weight_cat_id)
+    agecat = AgecategoriesDB.query.get(age_cat_id)
+    round = RoundsDB.query.get(round_no)
+    fight = FightsDB.query.get(fight_id)
+    #if fight is None:
+    #    abort(404, description="Не найдено боев с указанным ID")
+    #elif fight.fight_status:
+    return render_template('closed_fight.html', competition = competition, weightcat = weightcat, agecat = agecat, round = round, fight = fight)
+    #else:
+    #    abort(404, description="Не найдено завершенного боя с указанным ID")
 
 # Карточка боя
-@app.route('/competitions/<int:comp_id>/weightcat/<int:weight_cat_id>/agecat/<int:age_cat_id>/roundno/<int:round_no>/fights/<int:fight_id>')
+@app.route('/competitions/<int:comp_id>/weightcat/<int:weight_cat_id>/agecat/<int:age_cat_id>/roundno/<int:round_no>/fights/<int:fight_id>/open')
 def fight(comp_id, weight_cat_id, age_cat_id, round_no, fight_id):
     competition = CompetitionsDB.query.get(comp_id)
     weightcat = WeightcategoriesDB.query.get(weight_cat_id)
@@ -578,10 +613,13 @@ def fight(comp_id, weight_cat_id, age_cat_id, round_no, fight_id):
     #red_pic = fight.red_fighter.fighter_image
     #values['red_pic'] = red_pic
     #print(values['red_pic'])
-    if fight is None:
-        abort(404, description="Не найдено боев с указанным ID")
-    return render_template('referee.html', competition = competition, weightcat = weightcat, agecat = agecat, round = round, fight = fight, **values)
 
+    #if fight is None:
+    #    abort(404, description="Не найдено боев с указанным ID")
+    #elif fight.fight_status == 0:
+    return render_template('referee.html', competition = competition, weightcat = weightcat, agecat = agecat, round = round, fight = fight, **values)
+    #else:
+    #    abort(404, description="Не найдено запланированного боя с указанным ID")
 # Visitor view
 @app.route('/visitor')
 def visitor():
