@@ -263,12 +263,15 @@ def delete_fight(comp_id, weight_cat_id, age_cat_id, round_no, fight_id):
     fight_to_delete = FightsDB.query.get(fight_id)
     if fight_to_delete is None:
         abort(404, description="No Fight was Found with the given ID")
-    db.session.delete(fight_to_delete)
-    try:
-        db.session.commit()
-    except Exception as e:
-        print(e)
-        db.session.rollback()
+    if fight_to_delete.fight_status == False:
+        db.session.delete(fight_to_delete)
+        try:
+            db.session.commit()
+        except Exception as e:
+            print(e)
+            db.session.rollback()
+    else:
+        return "Нет запланированного боя с указанным ID"
     return redirect(url_for('fight_constructor_step2', comp_id = comp_id, weight_cat_id = weight_cat_id, age_cat_id = age_cat_id, round_no = round_no))
 
 
@@ -309,7 +312,7 @@ def fight_constructor_step2(comp_id, weight_cat_id, age_cat_id, round_no):
     reg_list_for_constructor = RegistrationDB.query.filter_by(competition_id = comp_id, weight_cat_id = weight_cat_id, age_cat_id = age_cat_id).all()
     fights_data = FightsDB.query.filter_by(competition_id=comp_id, round_number=round_no, weight_category=weight_cat_id, age_category=age_cat_id).all()
     fights_data_qty = FightsDB.query.filter_by(competition_id=comp_id, round_number=round_no, weight_category=weight_cat_id, age_category=age_cat_id).count()
-
+    history_fights_data = FightsDB.query.filter_by(competition_id=comp_id, weight_category=weight_cat_id, age_category=age_cat_id).order_by(asc(FightsDB.round_number)).all()
     # Нужно создать словарь. И итерироваться по словарю, а не по запросу из базы
     fighters_in_left_column = {}
     list_of_selected_fighters = []
@@ -337,7 +340,7 @@ def fight_constructor_step2(comp_id, weight_cat_id, age_cat_id, round_no):
         fighters_in_left_column[reg.id] = parameters
 
 
-    return render_template('fightconstructorstep2.html', list_of_selected_fighters = list_of_selected_fighters, fighters_in_left_column = fighters_in_left_column, fights_data = fights_data, competition_data  = competition_data, weight_category_data = weight_category_data, age_category_data = age_category_data, round_data = round_data, reg_list_for_constructor = reg_list_for_constructor)
+    return render_template('fightconstructorstep2.html', history_fights_data=history_fights_data, list_of_selected_fighters = list_of_selected_fighters, fighters_in_left_column = fighters_in_left_column, fights_data = fights_data, competition_data  = competition_data, weight_category_data = weight_category_data, age_category_data = age_category_data, round_data = round_data, reg_list_for_constructor = reg_list_for_constructor)
 
 
 
