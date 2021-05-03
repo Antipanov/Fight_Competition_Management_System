@@ -312,7 +312,30 @@ def fight_constructor_step2(comp_id, weight_cat_id, age_cat_id, round_no):
     reg_list_for_constructor = RegistrationDB.query.filter_by(competition_id = comp_id, weight_cat_id = weight_cat_id, age_cat_id = age_cat_id).all()
     fights_data = FightsDB.query.filter_by(competition_id=comp_id, round_number=round_no, weight_category=weight_cat_id, age_category=age_cat_id).all()
     fights_data_qty = FightsDB.query.filter_by(competition_id=comp_id, round_number=round_no, weight_category=weight_cat_id, age_category=age_cat_id).count()
+    all_rounds_data = RoundsDB.query.all()
     history_fights_data = FightsDB.query.filter_by(competition_id=comp_id, weight_category=weight_cat_id, age_category=age_cat_id).order_by(asc(FightsDB.round_number)).all()
+    # cоздаем словарь для таблицы История. Ключем будет круг. Значением будеит список данных
+    # Итерируемся по раундам
+    round_history = {}
+    for round in all_rounds_data:
+        if round.fights: # проверяем если есть записи по выборке "покажи бои в этом раунде"
+            fight_data = {} # в этот словарь будем записывать данные боев внутри раунда
+            list_of_fights_in_round = []  # список боев в раунде
+            for fight in round.fights: # итерируемся по боям внутри раунда
+                #print("раунд: " + round.round_name + ", бой № " + str(fight.fight_id) + " результат боя: " + str(fight.fight_result) + " имя красного бойца " + fight.red_fighter.name)
+                fight_data["fight_id"] = fight.fight_id
+                fight_data["red_fighter_name"] = fight.red_fighter.name
+                fight_data["red_fighter_last_name"] = fight.red_fighter.last_name
+                fight_data["blue_fighter_name"] = fight.blue_fighter.name
+                fight_data["blue_fighter_last_name"] = fight.blue_fighter.last_name
+                fight_data["fight_result"] = fight.fight_result
+                list_of_fights_in_round.append(fight_data)
+                fight_data = {}
+            round_history[round.round_name] = list_of_fights_in_round
+
+
+
+
     # Нужно создать словарь. И итерироваться по словарю, а не по запросу из базы
     fighters_in_left_column = {}
     list_of_selected_fighters = []
@@ -340,7 +363,7 @@ def fight_constructor_step2(comp_id, weight_cat_id, age_cat_id, round_no):
         fighters_in_left_column[reg.id] = parameters
 
 
-    return render_template('fightconstructorstep2.html', history_fights_data=history_fights_data, list_of_selected_fighters = list_of_selected_fighters, fighters_in_left_column = fighters_in_left_column, fights_data = fights_data, competition_data  = competition_data, weight_category_data = weight_category_data, age_category_data = age_category_data, round_data = round_data, reg_list_for_constructor = reg_list_for_constructor)
+    return render_template('fightconstructorstep2.html', round_history = round_history, list_of_selected_fighters = list_of_selected_fighters, fighters_in_left_column = fighters_in_left_column, fights_data = fights_data, competition_data  = competition_data, weight_category_data = weight_category_data, age_category_data = age_category_data, round_data = round_data, reg_list_for_constructor = reg_list_for_constructor)
 
 
 

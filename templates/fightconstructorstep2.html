@@ -62,7 +62,7 @@
                 <h5>Поединки</h5>
                 {% for fight in fights_data%}
                     {% if fight.fight_status %}
-                        <div class="shadow bg-white rounded">
+                        <div class="shadow bg-white rounded" style="padding-bottom: 2px; margin-bottom: 10px;">
                             <ul>
                                 <div class="d-flex justify-content-between" style="margin-right: 20px; margin-top: 0px; padding-top: 10px;">
                                     <h5>Бой №{{loop.index}}.</h5>
@@ -95,33 +95,34 @@
         <div class="row">
             <div class="col">
                 <h3>История</h3>
-                <table class="table table-sm">
-                      <thead>
-                        <tr>
-                          <th scope="col">Круг</th>
-                          <th scope="col">Красный</th>
-                          <th scope="col">Синий</th>
-                          <th scope="col">Результат</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                      {% for fight in history_fights_data %}
-                        <tr>
-                          <th scope="row">{{ fight.roundNo.round_name }}</th>
-                          <td>{{ fight.red_fighter.name }} {{ fight.red_fighter.last_name }}</td>
-                          <td>{{ fight.blue_fighter.name }} {{ fight.blue_fighter.last_name }}</td>
-                          <td>
-                              {% if fight.fight_result %}
-                                {{ fight.fight_result }}
-                              {% else %}
-                                Бой запланирован
-                              {% endif %}
+                {% for round_name, fights_in_round in round_history.items() %}
+                    <h4>{{ round_name }}</h4>
 
-                          </td>
-                        </tr>
-                      {% endfor %}
-                      </tbody>
-                    </table>
+                    <table class="table table-sm">
+                          <thead>
+                            <tr>
+                              <th scope="col">Красный</th>
+                              <th scope="col">Синий</th>
+                              <th scope="col">Результат</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                          {% for fight in fights_in_round %}
+                            <tr>
+                              <td>{{ fight['red_fighter_name'] }} {{ fight['red_fighter_last_name'] }}</td>
+                              <td>{{ fight['blue_fighter_name'] }} {{ fight['blue_fighter_last_name'] }}</td>
+                              <td>
+                                  {% if fight['fight_result'] %}
+                                    {{ fight['fight_result'] }}
+                                  {% else %}
+                                    Бой запланирован
+                                  {% endif %}
+                              </td>
+                            </tr>
+                          {% endfor %}
+                          </tbody>
+                        </table>
+                    {% endfor %}
             </div>
         </div>
     </div>
