@@ -102,7 +102,8 @@ class FightsDB(db.Model):
     age_category = db.Column(db.Integer, db.ForeignKey('agecategoriesDB.id'))  # возрастная категория, в которой проводится бой
     red_fighter_id = db.Column(db.Integer, db.ForeignKey('fightersDB.fighter_id')) # id красного бойца
     blue_fighter_id = db.Column(db.Integer, db.ForeignKey('fightersDB.fighter_id')) # id синего бойца
-    fight_status = db.Column(db.String)  # статус боя Запланирован, Завершен
+    #fight_status = db.Column(db.String)  # статус боя Запланирован, Завершен
+    fight_status = db.Column(db.Boolean, default=False) # False = Запланирован. True - завершен
     red_fighter_score = db.Column(db.Integer) # счет красного бойца
     blue_fighter_score = db.Column(db.Integer) # счет синего бойца
     won_id = db.Column(db.Integer) # результат боя Кто выиграл. Например. ID победителя
@@ -110,7 +111,7 @@ class FightsDB(db.Model):
     draw_status = db.Column(db.Boolean) # если ничья, то True
     competition_id = db.Column(db.Integer, db.ForeignKey('competitionsDB.competition_id'))
     fight_result = db.Column(db.String)
-    ntest = db.Column(db.String)
+    #ntest = db.Column(db.String)
 
 db.create_all()
 SQLALCHEMY_TRACK_MODIFICATIONS = False
