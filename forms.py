@@ -23,6 +23,14 @@ class WeightCategoriesForm(FlaskForm):
     weight_to_form_field = IntegerField('Вес До', validators=[validators.required()])
     submit = SubmitField('Сохранить')
 
+class ParticipantForm(FlaskForm):
+    participant_name_form = StringField('Имя', validators=[validators.required()])
+    participant_last_name_form = StringField('Фамилия', validators=[validators.required()])
+    birthday_form = DateField('Дата рождения', format = '%Y-%m-%d',validators=[validators.required()])
+    avatar_google_code = StringField('Код google для аватарки', validators=[validators.required()])
+    submit = SubmitField('Сохранить')
+
+
 #class ConstructorFormStep1(FlaskForm):
     #weight_select = RadioField('Label', choices=[('value','description'),('value_two','whatever')])
     #submit = SubmitField('Сохранить')

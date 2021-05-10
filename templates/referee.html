@@ -148,7 +148,10 @@ Referee
                       </div>
                       <div class="modal-body">
                         <h5 id="modal_text"></h5>
+                          <hr/>
+                        <h5 id="looser_name"></h5>
                       </div>
+
                       <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Отменить</button>
                         <button type="submit" class="btn btn-primary">Сохранить</button>
@@ -182,14 +185,17 @@ Referee
             $('#fight-result-button').on('click', function() {
                 var fight_result = $('input[name="fightresult"]:checked').val();
                 var text_in_modal = ''
+                var looser_name = ''
                 if (fight_result === 'winner_red'){
                     text_in_modal = 'Победил {{ fight.red_fighter.name +" " + fight.red_fighter.last_name }}'
+                    looser_name = 'Результаты {{ fight.blue_fighter.name +" " + fight.blue_fighter.last_name }}:'
                 } else if(fight_result === 'winner_blue'){
                     text_in_modal = 'Победил {{ fight.blue_fighter.name +" " + fight.blue_fighter.last_name }}'
                 } else {
                     text_in_modal = 'Ничья'
                 }
                 document.getElementById('modal_text').innerHTML = text_in_modal
+                document.getElementById('looser_name').innerHTML = looser_name
 
             })
             /*функция, которая забирает время, а отдает текст*/
