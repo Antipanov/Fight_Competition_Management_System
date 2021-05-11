@@ -193,7 +193,7 @@ def import_regs_csv():
             except Exception as e:
                 db.session.rollback()
     return "yep"
-import_regs_csv()
+#import_regs_csv()
 
 """Настройки боя"""
 settings_default = SettingsDB(Fight_duration_DB_Field=60, Added_time_DB_Field=20)
@@ -593,6 +593,9 @@ def competition_view(competition_id):
 def fight_finished(comp_id, fight_id):
     fight = FightsDB.query.get(fight_id)
     competition = CompetitionsDB.query.get(comp_id)
+    red_fighter_registration = RegistrationDB.query.filter_by(competition_id=comp_id, fighter_id=fight.red_fighter_id).all()
+    blue_fighter_registration = RegistrationDB.query.filter_by(competition_id=comp_id, fighter_id=fight.blue_fighter_id).all()
+
     if request.method == 'POST':
         fight_rusult = request.form.get('fightresult')
         fight.fight_status = 'Завершен'
@@ -604,6 +607,8 @@ def fight_finished(comp_id, fight_id):
             fight.draw_status = False
             fight.fight_status = True # Завершен
             fight.fight_result = 'Победил ' + fight.red_fighter.name + ' ' + fight.red_fighter.last_name
+            blue_fighter_finished_round_id = request.form.get('fighter_finished')
+            blue_fighter_registration[0].finish_round_id = blue_fighter_finished_round_id
 
         elif fight_rusult == 'winner_blue':
             fight.won_id = fight.blue_fighter_id
@@ -611,6 +616,8 @@ def fight_finished(comp_id, fight_id):
             fight.draw_status = False
             fight.fight_status = True  # Завершен
             fight.fight_result = 'Победил ' + fight.blue_fighter.name + ' ' + fight.blue_fighter.last_name
+            red_fighter_finished_round_id = request.form.get('fighter_finished')
+            red_fighter_registration[0].finish_round_id = red_fighter_finished_round_id
         else:
             fight.won_id = 0
             fight.loose_id = 0
@@ -622,8 +629,8 @@ def fight_finished(comp_id, fight_id):
         except Exception as e:
             print(e)
         db.session.rollback()
-
-
+        values['left_fighter_score'] = 0
+        values['right_fighter_score'] = 0
         return redirect (url_for('fights', comp_id = competition.competition_id))
 
 #  выбор вьюхи для разного типа боя - завершенного или запланированного
@@ -741,10 +748,10 @@ def test_connect():
 
 # при получении сообщения от клиента мы апдейтим значения переменных
 # emit отправляет сообщение чероз канал 'update value'
-@socketio.on('Slider value changed')
-def value_changed(message):
-    values[message['who']] = message['data']
-    emit('update value', message, broadcast=True)
+#@socketio.on('Slider value changed')
+#def value_changed(message):
+#    values[message['who']] = message['data']
+#    emit('update value', message, broadcast=True)
 
 
 @socketio.on('Timer value changed')
@@ -767,6 +774,7 @@ def fight_data_func(message):
 @socketio.on('Score value changed')
 def left_fighter_score_added_func(message):
     values['left_fighter_score'] = message['left_fighter_score']
+    values['right_fighter_score'] = message['right_fighter_score']
     emit('update_left_fighter_score', message, broadcast=True)
 
 @socketio.on('Right score value changed')
