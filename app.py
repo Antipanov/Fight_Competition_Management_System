@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, request, flash, abort, redirect, url_for
+from flask import Flask, render_template, request, flash, abort, redirect, url_for, json
 from flask_socketio import SocketIO, emit
 from flask_bootstrap import Bootstrap
 from forms import SettingsForm, CompetitionForm, WeightCategoriesForm, ParticipantForm
@@ -113,24 +113,10 @@ class FightsDB(db.Model):
     draw_status = db.Column(db.Boolean) # если ничья, то True
     competition_id = db.Column(db.Integer, db.ForeignKey('competitionsDB.competition_id'))
     fight_result = db.Column(db.String)
-    #ntest = db.Column(db.String)
 
 db.create_all()
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-
-
-#"""Регистрации"""
-#registration_1 = RegistrationDB(id=1, competition_id = 1, fighter_id = 1, fighter_registration_weight=20, fighter_registration_age = 6, weight_cat_id = 1, age_cat_id = 1)
-#registration_2 = RegistrationDB(id=2, competition_id = 1, fighter_id = 2, fighter_registration_weight=20, fighter_registration_age = 6, weight_cat_id = 1, age_cat_id = 1)
-#registration_3 = RegistrationDB(id=3, competition_id = 1, fighter_id = 3, fighter_registration_weight=20, fighter_registration_age = 6, weight_cat_id = 1, age_cat_id = 1)
-#registration_4 = RegistrationDB(id=4, competition_id = 1, fighter_id = 4, fighter_registration_weight=20, fighter_registration_age = 6, weight_cat_id = 1, age_cat_id = 1)
-
-
-#db.session.add(registration_1)
-#db.session.add(registration_2)
-#db.session.add(registration_3)
-#db.session.add(registration_4)
 
 """Возрастные категории"""
 age_category_1 = AgecategoriesDB(id=1, sort_index=500, age_category_name= ' от 0 до 12 лет включительно', age_category_start=0, age_category_finish=12)
@@ -173,31 +159,11 @@ db.session.add(w_category_4)
 competition_one = CompetitionsDB(competition_id = 1, competition_name = "Первенство Москвы по каратэ.")
 db.session.add(competition_one)
 
-"""Бойцы """
-#fighter_one = FightersDB(fighter_id = 1, name = "Конор", last_name = "МакГрегор", active_status = 1, fighter_image = "https://drive.google.com/uc?id=1Mt35oyUIxBdtHDkBmiT6ZjMk0sB6qZpZ")
-#fighter_two = FightersDB(fighter_id = 2, name = "Николай", last_name = "Валуев", active_status = 1, fighter_image = "https://drive.google.com/uc?id=1SV3wNHUjuRdHE4RYrzsYMz3i6hGMryJQ")
-#fighter_three = FightersDB(fighter_id = 3, name = "Арнольд", last_name = "Шварценнегер", active_status = 1, fighter_image = "https://drive.google.com/uc?id=1mUiWSsjBWFKAlv7eHjmev1-guNDGjfvs")
-#fighter_four = FightersDB(fighter_id = 4, name = "Сильвестер", last_name = "Сталонне", active_status = 1, fighter_image = "https://drive.google.com/uc?id=1NSNxtmpQLYzz-yFTLD_JRDK9r0Iv1ZT8")
-
-#"""Бой в таблице """
-#fight_one = FightsDB(fight_id = 1, round_number = "полуфинал", fight_status_planned = True, red_fighter_id = 1, blue_fighter_id = 2, fight_status = "Запланирован", competition_id = 1)
-#fight_two = FightsDB(fight_id = 2, round_number = "4-круг", fight_status_planned = True, red_fighter_id = 3, blue_fighter_id = 4, fight_status = "Запланирован", competition_id = 1)
-
-#db.session.add(fight_one)
-#db.session.add(fight_two)
 try:
    db.session.commit()
 except Exception as e:
     #print(e)
     db.session.rollback()
-
-
-
-#db.session.add(fighter_one)
-#db.session.add(fighter_two)
-#db.session.add(fighter_three)
-#db.session.add(fighter_four)
-
 
 
 # import fighters csv
@@ -227,7 +193,7 @@ def import_regs_csv():
             except Exception as e:
                 db.session.rollback()
     return "yep"
-#import_regs_csv()
+import_regs_csv()
 
 """Настройки боя"""
 settings_default = SettingsDB(Fight_duration_DB_Field=60, Added_time_DB_Field=20)
@@ -332,7 +298,6 @@ def delete_fight(comp_id, weight_cat_id, age_cat_id, round_no, fight_id):
 # Обработчик формы выбора бойцов в конструкторе
 @app.route('/competitions/<int:comp_id>/constructor/step2/weightcat/<int:weight_cat_id>/agecat/<int:age_cat_id>/roundno/<int:round_no>/fighters_selected', methods= ['GET', 'POST'])
 def constractor_fighters_are_selected(comp_id, weight_cat_id, age_cat_id, round_no):
-
     if request.method == 'POST':
         # Получаем список getlist из формы. Мы получаем по факту два значения айдишников бойцов, которыпе выбраны в форме
         selected_fighters = request.form.getlist('fighters_from_regs')
@@ -358,6 +323,7 @@ def constractor_fighters_are_selected(comp_id, weight_cat_id, age_cat_id, round_
 # Конструктор поединков Шаг 2. Создание боев
 @app.route('/competitions/<int:comp_id>/constructor/step2/weightcat/<int:weight_cat_id>/agecat/<int:age_cat_id>/roundno/<int:round_no>')
 def fight_constructor_step2(comp_id, weight_cat_id, age_cat_id, round_no):
+
     competition_data = CompetitionsDB.query.get(comp_id)
     weight_category_data = WeightcategoriesDB.query.get(weight_cat_id)
     age_category_data = AgecategoriesDB.query.get(age_cat_id)
@@ -379,7 +345,7 @@ def fight_constructor_step2(comp_id, weight_cat_id, age_cat_id, round_no):
         fight_data = {} # в этот словарь будем записывать данные боев внутри раунда
         list_of_fights_in_round = []  # список боев в раунде
         for fight in FightsDB.query.filter_by(competition_id=comp_id, round_number = round, weight_category=weight_cat_id, age_category=age_cat_id).all(): # итерируемся по боям внутри раунда
-            #print("раунд: " + round.round_name + ", бой № " + str(fight.fight_id) + " результат боя: " + str(fight.fight_result) + " имя красного бойца " + fight.red_fighter.name)
+
             fight_data["fight_id"] = fight.fight_id
             fight_data["red_fighter_name"] = fight.red_fighter.name
             fight_data["red_fighter_last_name"] = fight.red_fighter.last_name
@@ -388,9 +354,8 @@ def fight_constructor_step2(comp_id, weight_cat_id, age_cat_id, round_no):
             fight_data["fight_result"] = fight.fight_result
             list_of_fights_in_round.append(fight_data)
             fight_data = {}
-        round_data = RoundsDB.query.get(round)
-        round_history[round_data.round_name] = list_of_fights_in_round
-    print(round_history)
+        round_data_history = RoundsDB.query.get(round)
+        round_history[round_data_history.round_name] = list_of_fights_in_round
 
     # Нужно создать словарь. И итерироваться по словарю, а не по запросу из базы
     fighters_in_left_column = {}
@@ -417,9 +382,16 @@ def fight_constructor_step2(comp_id, weight_cat_id, age_cat_id, round_no):
             parameters['last_name'] = reg.fighter.last_name
             parameters['fight_is_exist'] = False
         fighters_in_left_column[reg.id] = parameters
-
-
-    return render_template('fightconstructorstep2.html', round_history = round_history, list_of_selected_fighters = list_of_selected_fighters, fighters_in_left_column = fighters_in_left_column, fights_data = fights_data, competition_data  = competition_data, weight_category_data = weight_category_data, age_category_data = age_category_data, round_data = round_data, reg_list_for_constructor = reg_list_for_constructor)
+    return render_template('fightconstructorstep2.html',
+                           round_history = round_history,
+                           list_of_selected_fighters = list_of_selected_fighters,
+                           fighters_in_left_column = fighters_in_left_column,
+                           fights_data = fights_data,
+                           competition_data  = competition_data,
+                           weight_category_data = weight_category_data,
+                           age_category_data = age_category_data,
+                           round_data = round_data,
+                           reg_list_for_constructor = reg_list_for_constructor)
 
 
 
@@ -503,7 +475,7 @@ def registration_new(competition_id):
         for reg in regs:
             if fighter.fighter_id == reg.fighter.fighter_id:
                 fighters_status[fighter.fighter_id] = {'general_status':fighter.active_status, 'reg_status': 1, 'fighter_name':fighter.name, 'fighter_last_name': fighter.last_name}
-    #print(fighters_status)
+
 
 
     if request.method == 'POST':
@@ -548,8 +520,6 @@ def registration_view(competition_id, registration_id):
     x = competition_data.competition_date_start - reg.fighter.birthday
     y = int(x.days / 365.25)
     reg.fighter_registration_age = y
-    print(x)
-    print(y)
     try:
         db.session.commit()
     except Exception as e:
@@ -696,36 +666,50 @@ def fight(comp_id, weight_cat_id, age_cat_id, round_no, fight_id):
     fight = FightsDB.query.get(fight_id)
     values['current_fight_id'] = fight_id
     closed_fights_in_competition = FightsDB.query.filter_by(competition_id = comp_id, fight_status = 1).all() # Получили все завершенные бои в соревновании
-    red_fighter_fight_result = {} # результаты боев, в которых участвовал красный боец
     red_fighter_history = {}
     for closed_fight in closed_fights_in_competition:
+        red_fighter_fight_result = {} # результаты боев, в которых участвовал красный боец
         if closed_fight.fight_id != fight_id:
             if fight.red_fighter_id == closed_fight.red_fighter_id:
-                red_fighter_fight_result["Соперник: "] = closed_fight.blue_fighter.name + " " + closed_fight.blue_fighter.last_name
-                red_fighter_fight_result["Результат: "] = closed_fight.fight_result
-                red_fighter_history["Бой №" + str(closed_fight.fight_id)] = red_fighter_fight_result
+                red_fighter_fight_result["round"] = closed_fight.roundNo.round_name
+                red_fighter_fight_result["partner"] = "Соперник: " + closed_fight.blue_fighter.name + " " + closed_fight.blue_fighter.last_name
+                red_fighter_fight_result["result"] = closed_fight.fight_result
+                red_fighter_history[closed_fight.roundNo.round_name] = red_fighter_fight_result
             elif fight.red_fighter_id == closed_fight.blue_fighter_id:
-                red_fighter_fight_result["Соперник: "] = closed_fight.red_fighter.name + " " + closed_fight.red_fighter.last_name
-                red_fighter_fight_result["Результат: "] = closed_fight.fight_result
-                red_fighter_history["Бой №" + str(closed_fight.fight_id)] = red_fighter_fight_result
+                red_fighter_fight_result["round"] = closed_fight.roundNo.round_name
+                red_fighter_fight_result["partner"] = "Соперник: " + closed_fight.red_fighter.name + " " + closed_fight.red_fighter.last_name
+                red_fighter_fight_result["result"] = closed_fight.fight_result
+                red_fighter_history[closed_fight.roundNo.round_name] = red_fighter_fight_result
             else:
                 continue
-    blue_fighter_fight_result = {}  # результаты боев, в которых участвовал красный боец
+
     blue_fighter_history = {}
     for closed_fight in closed_fights_in_competition:
+        blue_fighter_fight_result = {}  # результаты боев, в которых участвовал красный боец
         if closed_fight.fight_id != fight_id:
             if fight.blue_fighter_id == closed_fight.blue_fighter_id:
-                blue_fighter_fight_result["Соперник: "] = closed_fight.red_fighter.name + " " + closed_fight.red_fighter.last_name
-                blue_fighter_fight_result["Результат: "] = closed_fight.fight_result
-                blue_fighter_history["Бой №" + str(closed_fight.fight_id)] = blue_fighter_fight_result
+                blue_fighter_fight_result["round"] = closed_fight.roundNo.round_name
+                blue_fighter_fight_result["partner"] = "Соперник: " + closed_fight.red_fighter.name + " " + closed_fight.red_fighter.last_name
+                blue_fighter_fight_result["result"] = closed_fight.fight_result
+                blue_fighter_history[closed_fight.roundNo.round_name] = blue_fighter_fight_result
             elif fight.blue_fighter_id == closed_fight.red_fighter_id:
-                blue_fighter_fight_result["Соперник: "] = closed_fight.blue_fighter.name + " " + closed_fight.blue_fighter.last_name
-                blue_fighter_fight_result["Результат: "] = closed_fight.fight_result
-                blue_fighter_history["Бой №" + str(closed_fight.fight_id)] = blue_fighter_fight_result
+                blue_fighter_fight_result["round"] = closed_fight.roundNo.round_name
+                blue_fighter_fight_result["partner"] = "Соперник: " + closed_fight.blue_fighter.name + " " + closed_fight.blue_fighter.last_name
+                blue_fighter_fight_result["result"] = closed_fight.fight_result
+                blue_fighter_history[closed_fight.roundNo.round_name] = blue_fighter_fight_result
             else:
                 continue
-    print(blue_fighter_history)
-    return render_template('referee.html', blue_fighter_history = blue_fighter_history,  red_fighter_history =  red_fighter_history, competition = competition, weightcat = weightcat, agecat = agecat, round = round, fight = fight, **values)
+
+    return render_template('referee.html',
+                           closed_fights_in_competition = closed_fights_in_competition,
+                           blue_fighter_history = blue_fighter_history,
+                           red_fighter_history =  red_fighter_history,
+                           competition = competition,
+                           weightcat = weightcat,
+                           agecat = agecat,
+                           round = round,
+                           fight = fight,
+                           **values)
 
 # Visitor view
 @app.route('/visitor')

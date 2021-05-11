@@ -150,6 +150,16 @@ Referee
                         <h5 id="modal_text"></h5>
                           <hr/>
                         <h5 id="looser_name"></h5>
+                          <p id="red_fighter_history">
+                              {% for round_name, fight_result in red_fighter_history.items() %}
+                                  {{ fight_result['round']}}. {{ fight_result['partner']}}. {{ fight_result['result']}}
+                              {% endfor %}
+                          </p>
+                          <p id="blue_fighter_history">
+                              {% for round_name, fight_result in blue_fighter_history.items() %}
+                                  {{ fight_result['round']}}. {{ fight_result['partner']}}. {{ fight_result['result']}}
+                              {% endfor %}
+                          </p>
                       </div>
 
                       <div class="modal-footer">
@@ -175,6 +185,7 @@ Referee
     <script>
 
         $(document).ready(function(){
+            {#console.log({{ red_fighter_history }})#}
             $("#fight-result-button").prop('disabled', true)
             $('input[type=radio][name=fightresult]').change(function() {
                 $("#fight-result-button").prop('disabled', false)
@@ -186,11 +197,24 @@ Referee
                 var fight_result = $('input[name="fightresult"]:checked').val();
                 var text_in_modal = ''
                 var looser_name = ''
+                for (i = 0; i < history.length; i++){
+                    console.log('test')
+                }
+
+                {#var red_fighter_history = {{ red_fighter_history }}#}
                 if (fight_result === 'winner_red'){
                     text_in_modal = 'Победил {{ fight.red_fighter.name +" " + fight.red_fighter.last_name }}'
                     looser_name = 'Результаты {{ fight.blue_fighter.name +" " + fight.blue_fighter.last_name }}:'
+                    document.getElementById('red_fighter_history').hidden = true
+                    document.getElementById('blue_fighter_history').hidden = false
+
+
+                    //console.log(text)
                 } else if(fight_result === 'winner_blue'){
                     text_in_modal = 'Победил {{ fight.blue_fighter.name +" " + fight.blue_fighter.last_name }}'
+                    looser_name = 'Результаты {{ fight.red_fighter.name +" " + fight.red_fighter.last_name }}:'
+                    document.getElementById('red_fighter_history').hidden = false
+                    document.getElementById('blue_fighter_history').hidden = true
                 } else {
                     text_in_modal = 'Ничья'
                 }
