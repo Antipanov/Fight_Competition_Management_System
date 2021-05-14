@@ -402,13 +402,71 @@ def fight_constructor(comp_id):
     weight_categories = WeightcategoriesDB.query.order_by(asc(WeightcategoriesDB.sort_index)).all()
     age_categories = AgecategoriesDB.query.order_by(asc(AgecategoriesDB.sort_index)).all()
     rounds = RoundsDB.query.order_by(asc(RoundsDB.sort_index)).all()
+
+    registrations = RegistrationDB.query.filter_by(competition_id=comp_id).all()
+    # Получаем список id возрастных категорий из регистраций
+    age_cats_in_reg = [] # список возрастных категорий в регистрациях
+    for reg in registrations:
+        if reg.age_cat_id not in age_cats_in_reg:
+            age_cats_in_reg.append(reg.age_cat_id)
+    age_cats_in_reg.sort()
+    # Получаем словарь наименований возрастных категорий из регистраций
+    age_cat_data = {}
+    for age_cat in age_categories:
+        if age_cat.id in age_cats_in_reg:
+            age_cat_names = {}
+            age_cat_names["age_cat_id"] = age_cat.id
+            age_cat_names["age_cat_name"] = age_cat.age_category_name
+            age_cat_data[age_cat.id] = age_cat_names
+
+    # Получаем список id весовых категорий из регистраций
+    weight_cats_in_reg = []  # список возрастных категорий в регистрациях
+    for reg in registrations:
+        if reg.weight_cat_id not in weight_cats_in_reg:
+            weight_cats_in_reg.append(reg.weight_cat_id)
+    weight_cats_in_reg.sort()
+
+    # Получаем словарь наименований весовых категорий из регистраций
+    weight_cat_data = {}
+    for weight_cat in weight_categories:
+        if weight_cat.weight_cat_id in weight_cats_in_reg:
+            weight_cat_names = {}
+            weight_cat_names["weight_cat_id"] = weight_cat.weight_cat_id
+            weight_cat_names["weight_cat_name"] = weight_cat.weight_category_name
+            weight_cat_data[weight_cat.weight_cat_id] = weight_cat_names
+
+    # Считаем количество зарегистрированных участников
+    weight_cat_data_im_age_categories = {} # данные в весовых категориях записываются в возрастные категории
+    #print("age_cat_data ", age_cat_data)
+    #print("weight_cat_data ", weight_cat_data)
+    age_weight_data = {}
+    age_data = {}
+    for age_cat_id, age_cat in age_cat_data.items():
+        age_weight_data = {}
+        weight_fighter_data = {}
+        for weight_cat_id, weight_cat in weight_cat_data.items():
+            fighter_qty_in_weight_category = {}  # количество зарегистрированных бойцов в весовой категории
+            regs_in_age_and_weight_cat = RegistrationDB.query.filter_by(age_cat_id=age_cat_id, weight_cat_id = weight_cat_id).count()
+            fighter_qty_in_weight_category["weight_cat_id"] = weight_cat_id
+            fighter_qty_in_weight_category["weight_cat_name"] = WeightcategoriesDB.query.get(weight_cat_id).weight_category_name
+            fighter_qty_in_weight_category["fighters_qty_in_weight_cat"] = regs_in_age_and_weight_cat
+            weight_fighter_data[weight_cat_id] = fighter_qty_in_weight_category
+        age_weight_data["age_id"] = age_cat_id
+        age_weight_data["age_cat_name"] = AgecategoriesDB.query.get(age_cat_id).age_category_name
+        age_weight_data["age_weight_data"] = weight_fighter_data
+        age_data[age_cat_id] = age_weight_data
+    #print(age_data)
+
+
     if request.method == 'POST':
         comp_id = competition_data.competition_id
         weight_cat = request.form.get('weight_cats_radio')
+        print("weight_cat from form ",weight_cat)
         age_cat = request.form.get('age_cat_radio')
         round_no = request.form.get('round_radio')
         return redirect(url_for('fight_constructor_step2', comp_id = comp_id, weight_cat_id = weight_cat, age_cat_id = age_cat, round_no = round_no))
-    return render_template('fightconstructor.html', competition_data=competition_data, weight_categories = weight_categories, rounds = rounds, age_categories = age_categories)
+    print("weight_cat_data before render constr step 1 ", weight_cat_data)
+    return render_template('fightconstructor.html', age_data = age_data, competition_data=competition_data, age_cat_data = age_cat_data, rounds = rounds, weight_cat_data = weight_cat_data)
 
 
 

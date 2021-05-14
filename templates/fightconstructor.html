@@ -27,31 +27,31 @@
 
         <form method="POST" action="{{ url_for('fight_constructor', comp_id = competition_data.competition_id)}}">
                 <div class="row">
-
+            <div class="col-lg-4 shadow p-3 mb-5 bg-white rounded">
+                <h5>Возрастная категория</h5>
+                {% for age_cat_id, age_cat in age_cat_data.items() %}
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" value={{ age_cat_id }} name="age_cat_radio" id="flexRadioDefault1">
+                      <label class="form-check-label" for="flexRadioDefault1">
+                          {{ age_cat["age_cat_name"]}}
+                      </label>
+                    </div>
+                {% endfor %}
+            </div>
             <div class="col-lg-4 shadow p-3 mb-5 bg-white rounded">
                 <h5>Весовая категория</h5>
                 {#<form method="POST" action="{{ url_for('fight_constructor', comp_id = competition_data.competition_id) }}">#}
-                    {% for w_cat in weight_categories %}
+                    {% for w_cat_id, w_cat in weight_cat_data.items() %}
                     <div class="form-check">
-                      <input class="form-check-input" type="radio" value={{ w_cat.weight_cat_id }} name="weight_cats_radio" id="Radioweightcat">
+                      <input class="form-check-input" type="radio" value={{ w_cat_id }} name="weight_cats_radio" id="Radioweightcat">
                       <label class="form-check-label" for="Radioweightcat">
-                          {{ w_cat.weight_category_name}}
+                          {{ w_cat["weight_cat_name"] }}
                       </label>
                     </div>
                     {% endfor %}
                 {#</form>#}
             </div>
-            <div class="col-lg-4 shadow p-3 mb-5 bg-white rounded">
-                <h5>Возрастная категория</h5>
-                {% for age_cat in age_categories %}
-                    <div class="form-check">
-                      <input class="form-check-input" type="radio" value={{ age_cat.id }} name="age_cat_radio" id="flexRadioDefault1">
-                      <label class="form-check-label" for="flexRadioDefault1">
-                          {{ age_cat.age_category_name}}
-                      </label>
-                    </div>
-                {% endfor %}
-            </div>
+
             <div class="col-lg-4 shadow p-3 mb-5 bg-white rounded">
                 <h5>Круг</h5>
                 {% for round in rounds %}
@@ -74,6 +74,20 @@
 </div>
 
 
+    <div class="row" style="margin-top: 30px;">
+        <div class="col">
+            {% for age_cat_id, age_weight_data_dict in age_data.items() %}
+                <h4>Возрастная категория: {{ age_weight_data_dict["age_cat_name"] }}</h4>
+                {% for weight_cat_id, weight_cat_data_dict in age_weight_data_dict["age_weight_data"].items() %}
+                    <h5>Весовая категория: {{ weight_cat_data_dict["weight_cat_name"] }}</h5>
+                    <h6>Количество зарегистрированных участников: {{ weight_cat_data_dict["fighters_qty_in_weight_cat"] }}</h6>
+
+                {% endfor %}
+            {% endfor %}
+
+        </div>
+    </div>
+
 </div> <!-- конец дива с контейнером -->
 
 <!-- Начало скриптов -->
@@ -86,7 +100,7 @@
 
 <script>
     $(document).ready(function() {
-            document.getElementById("Radioweightcat").value = '1';
+
     } );
 
 
