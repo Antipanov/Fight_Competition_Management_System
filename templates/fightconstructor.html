@@ -79,9 +79,58 @@
             {% for age_cat_id, age_weight_data_dict in age_data.items() %}
                 <h4>Возрастная категория: {{ age_weight_data_dict["age_cat_name"] }}</h4>
                 {% for weight_cat_id, weight_cat_data_dict in age_weight_data_dict["age_weight_data"].items() %}
+
                     <h5>Весовая категория: {{ weight_cat_data_dict["weight_cat_name"] }}</h5>
                     <h6>Количество зарегистрированных участников: {{ weight_cat_data_dict["fighters_qty_in_weight_cat"] }}</h6>
 
+                        {% for round_id, round_data in  weight_cat_data_dict["rounds_data"].items() %}
+
+                                    <table class="table table-sm">
+                                      <thead>
+                                        <tr>
+                                          <th scope="col">Раунд</th>
+                                          <th scope="col">Количество запланированных боев</th>
+                                          <th scope="col">Количество завершенных боев</th>
+                                        </tr>
+                                      </thead>
+                                      <tbody>
+                                      <tr>
+                                          <td>
+                                                {{ round_data["round_name"] }}
+                                          </td>
+                                          <td>
+                                                {{ round_data["planned_fights_qty"] }}
+                                          </td>
+                                          <td>
+
+                                          </td>
+                                      </tr>
+                                      <tr>
+                                          <td>
+
+                                          </td>
+                                          <td>
+
+                                          </td>
+                                          <td>
+
+                                          </td>
+                                      </tr>
+                                      <tr>
+                                          <td>
+
+                                          </td>
+                                          <td>
+
+                                          </td>
+                                          <td>
+
+                                          </td>
+                                      </tr>
+                                      </tbody>
+                                </table>
+
+                    {% endfor %}
                 {% endfor %}
             {% endfor %}
 
@@ -89,7 +138,7 @@
     </div>
 
 </div> <!-- конец дива с контейнером -->
-
+{% endblock %}
 <!-- Начало скриптов -->
 {#<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
 <script src="https://cdn.datatables.net/1.10.13/js/jquery.dataTables.min.js"></script>#}
@@ -105,5 +154,3 @@
 
 
 </script>
-
-{% endblock %}

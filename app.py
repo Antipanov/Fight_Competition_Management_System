@@ -445,17 +445,39 @@ def fight_constructor(comp_id):
         age_weight_data = {}
         weight_fighter_data = {}
         for weight_cat_id, weight_cat in weight_cat_data.items():
-            fighter_qty_in_weight_category = {}  # количество зарегистрированных бойцов в весовой категории
+            age_cat_weight_cat_data = {}  # количество зарегистрированных бойцов в весовой категории
             regs_in_age_and_weight_cat = RegistrationDB.query.filter_by(age_cat_id=age_cat_id, weight_cat_id = weight_cat_id).count()
-            fighter_qty_in_weight_category["weight_cat_id"] = weight_cat_id
-            fighter_qty_in_weight_category["weight_cat_name"] = WeightcategoriesDB.query.get(weight_cat_id).weight_category_name
-            fighter_qty_in_weight_category["fighters_qty_in_weight_cat"] = regs_in_age_and_weight_cat
-            weight_fighter_data[weight_cat_id] = fighter_qty_in_weight_category
+            age_cat_weight_cat_data["weight_cat_id"] = weight_cat_id
+            age_cat_weight_cat_data["weight_cat_name"] = WeightcategoriesDB.query.get(weight_cat_id).weight_category_name
+            age_cat_weight_cat_data["fighters_qty_in_weight_cat"] = regs_in_age_and_weight_cat
+
+            # сначала получаем выборку из боев с фильтрами
+            fights_in_age_and_weight = FightsDB.query.filter_by(age_category = age_cat_id, weight_category = weight_cat_id).all()
+            # получаем список с id кругв, из боев в данном возрасте и весе
+            list_of_rounds_in_age_in_weight = []
+            for fight in fights_in_age_and_weight:
+                if fight.round_number not in list_of_rounds_in_age_in_weight:
+                    list_of_rounds_in_age_in_weight.append(fight.round_number)
+            age_weight_rounds_aggregate_data = {}
+            for round_id in list_of_rounds_in_age_in_weight:
+                age_weight_rounds_data = {}
+                age_weight_rounds_data["round_id"] = round_id
+                age_weight_rounds_data["round_name"] = RoundsDB.query.get(round_id).round_name
+                number_of_planned_fights = FightsDB.query.filter_by(age_category = age_cat_id, weight_category = weight_cat_id, round_number = round_id).count()
+
+                age_weight_rounds_data["planned_fights_qty"] = number_of_planned_fights
+                age_weight_rounds_aggregate_data[round_id] = age_weight_rounds_data
+            age_cat_weight_cat_data["rounds_data"] = age_weight_rounds_aggregate_data
+
+            weight_fighter_data[weight_cat_id] = age_cat_weight_cat_data
+
         age_weight_data["age_id"] = age_cat_id
         age_weight_data["age_cat_name"] = AgecategoriesDB.query.get(age_cat_id).age_category_name
         age_weight_data["age_weight_data"] = weight_fighter_data
+        #print("age_weight_data ", age_weight_data)
         age_data[age_cat_id] = age_weight_data
-    #print(age_data)
+
+    print(age_data)
 
 
     if request.method == 'POST':
@@ -465,7 +487,7 @@ def fight_constructor(comp_id):
         age_cat = request.form.get('age_cat_radio')
         round_no = request.form.get('round_radio')
         return redirect(url_for('fight_constructor_step2', comp_id = comp_id, weight_cat_id = weight_cat, age_cat_id = age_cat, round_no = round_no))
-    print("weight_cat_data before render constr step 1 ", weight_cat_data)
+
     return render_template('fightconstructor.html', age_data = age_data, competition_data=competition_data, age_cat_data = age_cat_data, rounds = rounds, weight_cat_data = weight_cat_data)
 
 
