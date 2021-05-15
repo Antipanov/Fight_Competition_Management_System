@@ -66,24 +66,87 @@ Referee
                 <br>
 
                 <div class="row justify-content-center">  <!--ряд с текстом СЧЕТ -->
-                    <h1 class="display-4">СЧЁТ</h1>
+                    <h2>СЧЁТ</h2>
                 </div> <!--конец ряда с текстом СЧЕТ -->
                 {#<br>#}
                 <div class="row justify-content-center">  <!--ряд со счетом и кнопками -->
-                    <div class="col-xs-4">
+                    <div class="col-xs-4 my-auto">
                       <button type="button" class="btn btn-secondary btn-lg" id="left_fighter_plus_score_button">+1 Балл</button>
                         <button type="button" class="btn btn-secondary btn-lg" id="left_fighter_minus_score_button">-1</button>
                     </div>
-                    <div class="col-6 display-2">
+                    <div class="col-6 display-4">
                      <span id="left_fighter_score_result_text">0</span>
                         <span> : </span>
                         <span id="right_fighter_score_result_text">0</span>
                     </div>
-                    <div class="col-xs-4">
+                    <div class="col-xs-4 my-auto">
                         <button type="button" class="btn btn-secondary btn-lg" id="right_fighter_plus_score_button">+1 Балл</button>
                         <button type="button" class="btn btn-secondary btn-lg" id="right_fighter_minus_score_button">-1</button>
                     </div>
                 </div> <!--конец ряда со счетом и кнопками -->
+
+                <hr/>
+
+                 {#<div class="row justify-content-center">
+                    <h2>ВЫХОД ЗА ПЛОЩАДКУ</h2>
+                </div>#}
+
+                <div class="row justify-content-center">
+                    <div class="col-xs-4 my-auto">
+                      <button type="button" class="btn btn-secondary btn-lg" id="left_fighter_plus_score_button">+1 Д</button>
+                        <button type="button" class="btn btn-secondary btn-lg" id="left_fighter_minus_score_button">-1</button>
+                    </div>
+                    <div class="col-6 display-4">
+                     <span id="left_fighter_score_result_text">0</span>
+                        <span> : </span>
+                        <span id="right_fighter_score_result_text">0</span>
+                    </div>
+                    <div class="col-xs-4 my-auto">
+                        <button type="button" class="btn btn-secondary btn-lg" id="right_fighter_plus_score_button">+1 Д</button>
+                        <button type="button" class="btn btn-secondary btn-lg" id="right_fighter_minus_score_button">-1</button>
+                    </div>
+                </div> <!--конец ряда со счетом и кнопками -->
+
+                <hr/>
+
+                {# <div class="row justify-content-center">
+                    <h2>КОНТАКТ</h2>
+                </div>#}
+
+                <div class="row justify-content-center">
+                    <div class="col-xs-4 my-auto">
+                      <button type="button" class="btn btn-secondary btn-lg" id="left_fighter_plus_score_button">+1 Х</button>
+                        <button type="button" class="btn btn-secondary btn-lg" id="left_fighter_minus_score_button">-1</button>
+                    </div>
+                    <div class="col-6 display-4">
+                     <span id="left_fighter_score_result_text">0</span>
+                        <span> : </span>
+                        <span id="right_fighter_score_result_text">0</span>
+                    </div>
+                    <div class="col-xs-4 my-auto">
+                        <button type="button" class="btn btn-secondary btn-lg" id="right_fighter_plus_score_button">+1 Х</button>
+                        <button type="button" class="btn btn-secondary btn-lg" id="right_fighter_minus_score_button">-1</button>
+                    </div>
+                </div> <!--конец ряда со счетом и кнопками -->
+
+                <hr/>
+                <div class="row justify-content-center">
+                    <div class="col-xs-4 my-auto">
+                      <button type="button" class="btn btn-secondary btn-lg" id="left_fighter_plus_score_button">+1 М</button>
+                        <button type="button" class="btn btn-secondary btn-lg" id="left_fighter_minus_score_button">-1</button>
+                    </div>
+                    <div class="col-6 display-4">
+                     <span id="left_fighter_score_result_text">0</span>
+                        <span> : </span>
+                        <span id="right_fighter_score_result_text">0</span>
+                    </div>
+                    <div class="col-xs-4 my-auto">
+                        <button type="button" class="btn btn-secondary btn-lg" id="right_fighter_plus_score_button">+1 М</button>
+                        <button type="button" class="btn btn-secondary btn-lg" id="right_fighter_minus_score_button">-1</button>
+                    </div>
+                </div> <!--конец ряда со счетом и кнопками -->
+
+
                 <div class="row justify-content-center"><!--тестовый ряд для вывода даных из базы -->
                     <div class="col-xs-12">
 
@@ -270,7 +333,7 @@ Referee
             var blue_pic = '{{ fight.blue_fighter.fighter_image }}'
 
             socket.emit('Fight_data', {'competition_name': competition_name, 'weight_category_name': weight_category_name, 'age_category_name': age_category_name, 'roundno': roundno, 'red_pic': red_pic, 'blue_pic': blue_pic});
-            console.log("red_pic =" + red_pic)
+            //console.log("red_pic =" + red_pic)
         // An event handler for a change of value
         //Event handler is defined on class sync thus will work for both slider1 and slider2.
         //The line having socket.emit() emits a custom event named slider value changed which can then be received on server side

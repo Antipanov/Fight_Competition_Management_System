@@ -16,7 +16,7 @@ Fights
 {% block content %}
     <div class="container-fluid" style="margin-top: 10px">
         <div class="row"> <!-- это ряд, в котором лежат два блока - список боев и фильтра -->
-            <div class="col-lg-9 shadow p-3 mb-5 bg-white rounded text-center"> <!-- это колонка с таблицей боеы -->
+            <div class="col-lg-12 shadow p-3 mb-5 bg-white rounded text-center"> <!-- это колонка с таблицей боеы -->
                 <nav aria-label="breadcrumb">
                       <ol class="breadcrumb">
                         <li class="breadcrumb-item"><a href="{{url_for('competitions')}}">Список соревнований</a></li>
@@ -74,9 +74,9 @@ Fights
                 </table>
 
             </div> <!-- конец колонки с таблицей боеы -->
-            <div class="col-lg-3 shadow p-3 mb-5 bg-white rounded"> <!-- это колонка с фильтрами -->
+            {#<div class="col-lg-3 shadow p-3 mb-5 bg-white rounded"> <!-- это колонка с фильтрами -->
                     <h4 style="text-align: center">Фильтры</h4>
-            </div> <!-- это конец колонки с фильтрами -->
+            </div> <!-- это конец колонки с фильтрами -->#}
         </div>
 
 

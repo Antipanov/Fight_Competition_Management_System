@@ -381,7 +381,14 @@ def fight_constructor_step2(comp_id, weight_cat_id, age_cat_id, round_no):
             parameters['name'] = reg.fighter.name
             parameters['last_name'] = reg.fighter.last_name
             parameters['fight_is_exist'] = False
+        # проверяем не вылетел ли боец
+        if reg.finish_round_id:
+            parameters["finished_in_round"] = reg.finish_round_id
+            parameters["finished_round_name"] = RoundsDB.query.get(reg.finish_round_id).round_name
+        else:
+            parameters["finished_in_round"] = 0
         fighters_in_left_column[reg.id] = parameters
+    print(fighters_in_left_column)
     return render_template('fightconstructorstep2.html',
                            round_history = round_history,
                            list_of_selected_fighters = list_of_selected_fighters,
@@ -861,7 +868,8 @@ def fight_data_func(message):
 @socketio.on('Score value changed')
 def left_fighter_score_added_func(message):
     values['left_fighter_score'] = message['left_fighter_score']
-    values['right_fighter_score'] = message['right_fighter_score']
+    #values['right_fighter_score'] = message['right_fighter_score']
+    print("values['left_fighter_score'] ",values['left_fighter_score'])
     emit('update_left_fighter_score', message, broadcast=True)
 
 @socketio.on('Right score value changed')

@@ -35,7 +35,16 @@
                 <h5>Участники</h5>
                 <form method="POST" action="{{ url_for('constractor_fighters_are_selected', comp_id = competition_data.competition_id, weight_cat_id = weight_category_data.weight_cat_id, age_cat_id = age_category_data.id, round_no = round_data.id)}}">
                     {% for reg_id, parameters in fighters_in_left_column.items() %} <!-- итерируемся по словарю с id регистраций и данными по каждой из них-->
-                        {% if parameters['fight_is_exist'] %}
+                        {% if parameters['finished_in_round'] > 0 %}
+                            <div class="form-check">
+                              <input disabled id="checkregistration" name = "fighters_from_regs" class="form-check-input" type="checkbox" value={{ reg_id }}>
+                              <label class="form-check-label" for="checkregistration">
+                                  {{ parameters['name'] }} {{ parameters['last_name'] }}
+                              </label>
+                                <small>Вылетел в раунде "{{ parameters['finished_round_name'] }}"</small>
+                            </div>
+
+                        {% elif parameters['fight_is_exist'] %}
                             <div class="form-check">
                               <input disabled id="checkregistration" name = "fighters_from_regs" class="form-check-input" type="checkbox" value={{ reg_id }}>
                               <label class="form-check-label" for="checkregistration">

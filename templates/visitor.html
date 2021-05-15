@@ -5,11 +5,22 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
     <title>Visitor</title>
 </head>
 <body>
-    <div class="container">
+    <div class="container" id="default_container">
+        <div class="row" style="margin-top: 100px">
+            <div class="col" style="text-align: center">
+                <h1 >Первенство Москвы по каратэ</h1>
+                <p>ТАБЛО</p>
+
+            </div>
+        </div>
+
+    </div>
+    <div class="container" id="fight_container">
         <div class="row justify-content-between">
             <div class="col-lg-6">
                 <h3 id="competition_name"></h3>
@@ -80,6 +91,8 @@
     <script>
 
         $(document).ready(function(){
+            document.getElementById("default_container").hidden = false
+            document.getElementById("fight_container").hidden = true
 
             /*функция, которая забирает время, а отдает текст*/
             function timer_display(current_time_value){
@@ -105,6 +118,8 @@
             })
 
             socket.on('update_competition_name', function (msg){
+                document.getElementById("fight_container").hidden = false
+                document.getElementById("default_container").hidden = true
                 document.getElementById('competition_name').innerHTML = msg.competition_name
                 document.getElementById('weight_category_name').innerHTML = "Весовая категория: " + msg.weight_category_name
                 document.getElementById('age_category_name').innerHTML = "Возрастная категория: " + msg.age_category_name
