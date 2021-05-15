@@ -464,8 +464,13 @@ def fight_constructor(comp_id):
                 age_weight_rounds_data["round_id"] = round_id
                 age_weight_rounds_data["round_name"] = RoundsDB.query.get(round_id).round_name
                 number_of_planned_fights = FightsDB.query.filter_by(age_category = age_cat_id, weight_category = weight_cat_id, round_number = round_id).count()
-
+                number_of_finished_fights = FightsDB.query.filter_by(age_category = age_cat_id, weight_category = weight_cat_id, round_number = round_id, fight_status = 1).count()
+                if number_of_planned_fights == number_of_finished_fights:
+                    age_weight_rounds_data["round_status"] = "Завершен"
+                elif number_of_planned_fights > number_of_finished_fights:
+                    age_weight_rounds_data["round_status"] = "Не завершен"
                 age_weight_rounds_data["planned_fights_qty"] = number_of_planned_fights
+                age_weight_rounds_data["finished_fights_qty"] = number_of_finished_fights
                 age_weight_rounds_aggregate_data[round_id] = age_weight_rounds_data
             age_cat_weight_cat_data["rounds_data"] = age_weight_rounds_aggregate_data
 
@@ -477,17 +482,19 @@ def fight_constructor(comp_id):
         #print("age_weight_data ", age_weight_data)
         age_data[age_cat_id] = age_weight_data
 
-    print(age_data)
 
 
     if request.method == 'POST':
         comp_id = competition_data.competition_id
         weight_cat = request.form.get('weight_cats_radio')
-        print("weight_cat from form ",weight_cat)
         age_cat = request.form.get('age_cat_radio')
         round_no = request.form.get('round_radio')
-        return redirect(url_for('fight_constructor_step2', comp_id = comp_id, weight_cat_id = weight_cat, age_cat_id = age_cat, round_no = round_no))
-
+        if weight_cat and age_cat and round_no:
+            return redirect(url_for('fight_constructor_step2', comp_id = comp_id, weight_cat_id = weight_cat, age_cat_id = age_cat, round_no = round_no))
+        else:
+            flash('Необходимо выбрать возрастную категорию, весовую категорию и круг')
+            return render_template('fightconstructor.html', age_data=age_data, competition_data=competition_data,
+                                   age_cat_data=age_cat_data, rounds=rounds, weight_cat_data=weight_cat_data)
     return render_template('fightconstructor.html', age_data = age_data, competition_data=competition_data, age_cat_data = age_cat_data, rounds = rounds, weight_cat_data = weight_cat_data)
 
 

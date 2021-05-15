@@ -7,7 +7,7 @@
 {% block head %}
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
 <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
-<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.24/css/dataTables.bootstrap4.min.css">
+{#<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.24/css/dataTables.bootstrap4.min.css">#}
 {% endblock %}
 
 
@@ -23,6 +23,18 @@
                         <li class="breadcrumb-item active" aria-current="page">Конструктор. Выбор параметров</li>
                       </ol>
                 </nav>
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                    <ul style="padding-left: 0">
+                        {% for message in messages %}
+                        <div class="alert alert-warning" role="alert">
+                            <li style="list-style-type: none;">{{ message }}</li>
+                        </div>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                {% endwith %}
+
                 <h3>{{ competition_data.competition_name }}</h3>
 
         <form method="POST" action="{{ url_for('fight_constructor', comp_id = competition_data.competition_id)}}">
@@ -63,7 +75,7 @@
                     </div>
                 {% endfor %}
             </div>
-            <button type="submit" class="btn btn-primary">В конструктор поединков</button>
+            <button  type="submit" id="go_to_next_step_button" class="btn btn-primary">В конструктор поединков</button>
 
         </div>
         </form>
@@ -79,58 +91,41 @@
             {% for age_cat_id, age_weight_data_dict in age_data.items() %}
                 <h4>Возрастная категория: {{ age_weight_data_dict["age_cat_name"] }}</h4>
                 {% for weight_cat_id, weight_cat_data_dict in age_weight_data_dict["age_weight_data"].items() %}
-
+                    <div style="margin-bottom: 30px;">
                     <h5>Весовая категория: {{ weight_cat_data_dict["weight_cat_name"] }}</h5>
                     <h6>Количество зарегистрированных участников: {{ weight_cat_data_dict["fighters_qty_in_weight_cat"] }}</h6>
 
+                    {% if weight_cat_data_dict["rounds_data"] %}
+                    <table class="table table-sm table-bordered">
+                      <thead>
+                        <tr>
+                          <th scope="col" style="text-align: center;">Раунд</th>
+                          <th scope="col" style="text-align: center;">Количество запланированных боев</th>
+                          <th scope="col" style="text-align: center;">Количество завершенных боев</th>
+                          <th scope="col" style="text-align: center;">Статус раунда</th>
+                        </tr>
+                      </thead>
+                      <tbody>
                         {% for round_id, round_data in  weight_cat_data_dict["rounds_data"].items() %}
-
-                                    <table class="table table-sm">
-                                      <thead>
-                                        <tr>
-                                          <th scope="col">Раунд</th>
-                                          <th scope="col">Количество запланированных боев</th>
-                                          <th scope="col">Количество завершенных боев</th>
-                                        </tr>
-                                      </thead>
-                                      <tbody>
-                                      <tr>
-                                          <td>
-                                                {{ round_data["round_name"] }}
-                                          </td>
-                                          <td>
-                                                {{ round_data["planned_fights_qty"] }}
-                                          </td>
-                                          <td>
-
-                                          </td>
-                                      </tr>
-                                      <tr>
-                                          <td>
-
-                                          </td>
-                                          <td>
-
-                                          </td>
-                                          <td>
-
-                                          </td>
-                                      </tr>
-                                      <tr>
-                                          <td>
-
-                                          </td>
-                                          <td>
-
-                                          </td>
-                                          <td>
-
-                                          </td>
-                                      </tr>
-                                      </tbody>
-                                </table>
-
-                    {% endfor %}
+                      <tr>
+                          <td style="text-align: center;">
+                                {{ round_data["round_name"] }}
+                          </td>
+                          <td style="text-align: center;">
+                                {{ round_data["planned_fights_qty"] }}
+                          </td>
+                          <td style="text-align: center;">
+                                {{ round_data["finished_fights_qty"] }}
+                          </td>
+                            <td style="text-align: center;">
+                                {{ round_data["round_status"] }}
+                            </td>
+                      </tr>
+                        {% endfor %}
+                      </tbody>
+                </table>
+                {% endif %}
+                </div>
                 {% endfor %}
             {% endfor %}
 
@@ -138,19 +133,26 @@
     </div>
 
 </div> <!-- конец дива с контейнером -->
-{% endblock %}
-<!-- Начало скриптов -->
+
+    <!-- Начало скриптов -->
 {#<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
 <script src="https://cdn.datatables.net/1.10.13/js/jquery.dataTables.min.js"></script>#}
-<script src="https://code.jquery.com/jquery-3.5.1.js"></script>
-<script type="text/javascript" src="https://cdn.datatables.net/v/bs4/dt-1.10.24/datatables.min.js" defer></script>
-
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+{#<script type="text/javascript" src="https://cdn.datatables.net/v/bs4/dt-1.10.24/datatables.min.js" defer></script>#}
 
 
 <script>
     $(document).ready(function() {
+        {#$("#go_to_next_step_button").prop('disabled', true)#}
+
 
     } );
 
 
 </script>
+
+
+{% endblock %}
+
