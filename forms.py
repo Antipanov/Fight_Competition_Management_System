@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import Form, TextField, TextAreaField, validators, StringField, SubmitField, IntegerField, DateField, RadioField
+from wtforms import Form, TextAreaField, validators, StringField, SubmitField, IntegerField, DateField, RadioField
 from wtforms.validators import InputRequired
 from sqlalchemy import desc, asc
 
